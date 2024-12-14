@@ -6,7 +6,7 @@
 # english only
 
 # pip uninstall -y transformer-engine
-# pip install torch==2.2.0   # install torch with gpu support... according to pyorch site
+# pip install torch==2.5.1+cu124   # install torch with gpu support... according to pyorch site and not according to the huggingface site
 # pip install transformers==4.42.4
 # pip install flash-attn==2.2.0
 # pip install sentence-transformers==2.7.0

@@ -28,9 +28,19 @@ To do it the conda way, see <https://docs.conda.io/projects/conda/en/latest/user
 
 #### Poppler path
 
-Set the path to the bin folder of poppler 
+Set the path to the bin folder of poppler
 poppler_path = r"C:\path\to\poppler-xx\bin"
 
 #### OpenAI API key
 
 Set the environment variable *MY_OPENAI_API_KEY* to your api key.
+
+## Features
+
+### local
+
+- Simple, rated-limited openai calls
+- local PDF to image conversion
+- local PDF text extraction
+- OpenAI Image text extraction
+- Different embeddings (local)

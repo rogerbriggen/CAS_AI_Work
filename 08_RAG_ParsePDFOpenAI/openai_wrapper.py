@@ -1,13 +1,14 @@
+from openai_ratelimited import OpenAIClientRL
 import base64
 import io
-from openai import OpenAI
 import sys
 import os
 
 class OpenAIWrapper:
     def __init__(self):
         # Initializing OpenAI client - see https://platform.openai.com/docs/quickstart?context=python
-        self.openai = OpenAI(api_key=os.getenv("MY_OPENAI_API_KEY"))
+        # We use the rate-limited version of the OpenAI client
+        self.openai = OpenAIClientRL()
         self.system_prompt_image = '''
 You will be provided with an image of a PDF page or a slide. Your goal is to deliver a detailed and engaging presentation about the content you see, using clear and accessible language suitable for a 101-level audience.
 
@@ -50,7 +51,9 @@ If there is an identifiable title, present the output in the following format:
 If there is no clear title, simply provide the content description.
 '''
 
-    # Converting images to base64 encoded images in a data URI format to use with the ChatCompletions API
+    '''
+    Convert an image to a base64 encoded image in data URI format.
+    '''
     def get_img_uri(self, img):
         png_buffer = io.BytesIO()
         img.save(png_buffer, format="PNG")
@@ -61,16 +64,24 @@ If there is no clear title, simply provide the content description.
         data_uri = f"data:image/png;base64,{base64_png}"
         return data_uri
     
+    '''
+    Convert a PNG file to a base64 encoded image in data URI format.
+    '''
     def get_img_uri_from_pngfile(self, path):
         with open(path, "rb") as image_file:
             base64_image = base64.b64encode(image_file.read()).decode("utf-8")
         data_uri = f"data:image/png;base64,{base64_image}"
         return data_uri
     
+    '''
+    Analyze an image (base64encoded) using OpenAI's ChatCompletions API.
+    '''
     def analyze_image(self, data_uri, system_prompt=None):
         if system_prompt is None:
             system_prompt = self.system_prompt_image
-        response = self.openai.chat.completions.create(
+        print(f"Analyzing image with OpenAI...")
+        #print(f"Data URI: {data_uri}")
+        response = self.openai.chat_completions_create(
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -91,7 +102,13 @@ If there is no clear title, simply provide the content description.
             top_p=0.1 # use only the top 10% of the probability mass for the next token
         )
         return response.choices[0].message.content
-            
+
+    '''
+    Analyze a document image (PIL image) using OpenAI's ChatCompletions API.
+    '''
+    def analyze_doc_image(self, img):
+        data_uri = self.get_img_uri(img)
+        return self.analyze_image(data_uri)    
 
 
 def main():
