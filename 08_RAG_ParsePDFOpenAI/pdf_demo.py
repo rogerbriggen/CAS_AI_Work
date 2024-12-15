@@ -260,6 +260,7 @@ class PDFDemo:
                 print(f"Similarity: {self.rag_get_similarity(match):.2f}")
                 print(f"{match['content'][:100]}{'...' if len(match['content']) > 100 else ''}\n\n")
             reply = self.rag_generate_output(ex, matching_content)
+            print(f"QUERY (repeated): {ex}\n\n")
             print(f"REPLY:\n\n{reply}\n\n--------------\n\n")
 
 
