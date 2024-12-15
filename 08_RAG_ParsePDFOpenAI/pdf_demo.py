@@ -213,6 +213,7 @@ class PDFDemo:
                     content += f"\n\n{row['content']}"
 
         prompt = f"INPUT PROMPT:\n{input_prompt}\n-------\nCONTENT:\n{content}"
+        print(f"Prompt: {prompt}")
         openai_wrapper = OpenAIWrapper()
         completion = openai_wrapper.openai.chat_completions_create(
             model="gpt-4o",
