@@ -250,16 +250,16 @@ class PDFDemo:
         df = self.load_embeddings(embeddings_file)
         # Running the RAG pipeline on each example
         for ex in example_inputs:
-            print(f"[deep_pink4][bold]QUERY:[/bold] {ex}[/deep_pink4]\n\n")
+            print(f"QUERY: {ex}\n\n")
             matching_content = self.rag_search_content(df, ex, 3)
-            print("[grey37][b]Matching content:[/b][/grey37]\n")
+            print("Matching content:\n")
             for match in matching_content.iterrows():
                 if isinstance(match, tuple):
                     match = match[1]
-                print(f"[grey37][i]Similarity: {self.rag_get_similarity(match):.2f}[/i][/grey37]")
-                print(f"[grey37]{match['content'][:100]}{'...' if len(match['content']) > 100 else ''}[/[grey37]]\n\n")
+                print(f"Similarity: {self.rag_get_similarity(match):.2f}")
+                print(f"{match['content'][:100]}{'...' if len(match['content']) > 100 else ''}\n\n")
             reply = self.rag_generate_output(ex, matching_content)
-            print(f"[turquoise4][b]REPLY:[/b][/turquoise4]\n\n[spring_green4]{reply}[/spring_green4]\n\n--------------\n\n")
+            print(f"REPLY:\n\n{reply}\n\n--------------\n\n")
 
 
 def main():
