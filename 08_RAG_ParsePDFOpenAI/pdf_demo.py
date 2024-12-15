@@ -319,7 +319,7 @@ def main():
         print("RAG finished")
     elif args.processType == str_process_all:
         # extract text
-        docs = pdf_demo.extract_slides_text_from_pdf(pdf_files_path=pdf_files_path)
+        docs = pdf_demo.extract_slides_text_from_pdf(pdf_files_path=pdf_files_path, max_files=4)
         pdf_demo.save_docs_as_json(docs, json_file)
         print(f"Saved {len(docs)} docs")
         # create embeddings
