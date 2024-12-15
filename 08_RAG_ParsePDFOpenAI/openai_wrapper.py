@@ -62,7 +62,7 @@ class OpenAIWrapper:
 
         2b. If the content is not relevant, use your own knowledge to reply or say that you don't know how to respond if your knowledge is not sufficient to answer.
 
-        Stay concise with your answer, replying specifically to the input prompt without mentioning additional information provided in the context content.
+        Add always first, if you took the information from content provided or not. Stay concise with your answer, replying specifically to the input prompt without mentioning additional information provided in the context content.
         '''
 
     def get_img_uri(self, img):
