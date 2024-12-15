@@ -14,6 +14,14 @@
       "args": ["${command:pickArgs}"]
     },
     {
+      "name": "Python Debugger: Current File with -pt=extractText",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "args": ["-pt=extractText"]
+    },
+    {
       "name": "Python Debugger: Current File with -pt=createEmbeddings",
       "type": "debugpy",
       "request": "launch",
@@ -28,6 +36,14 @@
       "program": "${file}",
       "console": "integratedTerminal",
       "args": ["-pt=runRag"]
+    },
+    {
+      "name": "Python Debugger: Current File with -pt=processAll",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "args": ["-pt=processAll"]
     }
   ]
 }
