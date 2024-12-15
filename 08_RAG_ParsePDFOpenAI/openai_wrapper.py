@@ -10,47 +10,60 @@ class OpenAIWrapper:
         # We use the rate-limited version of the OpenAI client
         self.openai = OpenAIClientRL()
         self.system_prompt_image = '''
-You will be provided with an image of a PDF page or a slide. Your goal is to deliver a detailed and engaging presentation about the content you see, using clear and accessible language suitable for a 101-level audience.
+        You will be provided with an image of a PDF page or a slide. Your goal is to deliver a detailed and engaging presentation about the content you see, using clear and accessible language suitable for a 101-level audience.
 
-If there is an identifiable title, start by stating the title to provide context for your audience.
+        If there is an identifiable title, start by stating the title to provide context for your audience.
 
-Describe visual elements in detail:
+        Describe visual elements in detail:
 
-- **Diagrams**: Explain each component and how they interact. For example, "The process begins with X, which then leads to Y and results in Z."
+        - **Diagrams**: Explain each component and how they interact. For example, "The process begins with X, which then leads to Y and results in Z."
 
-- **Tables**: Break down the information logically. For instance, "Product A costs X dollars, while Product B is priced at Y dollars."
+        - **Tables**: Break down the information logically. For instance, "Product A costs X dollars, while Product B is priced at Y dollars."
 
-Focus on the content itself rather than the format:
+        Focus on the content itself rather than the format:
 
-- **DO NOT** include terms referring to the content format.
+        - **DO NOT** include terms referring to the content format.
 
-- **DO NOT** mention the content type. Instead, directly discuss the information presented.
+        - **DO NOT** mention the content type. Instead, directly discuss the information presented.
 
-Keep your explanation comprehensive yet concise:
+        Keep your explanation comprehensive yet concise:
 
-- Be exhaustive in describing the content, as your audience cannot see the image.
+        - Be exhaustive in describing the content, as your audience cannot see the image.
 
-- Exclude irrelevant details such as page numbers or the position of elements on the image.
+        - Exclude irrelevant details such as page numbers or the position of elements on the image.
 
-Use clear and accessible language:
+        Use clear and accessible language:
 
-- Explain technical terms or concepts in simple language appropriate for a 101-level audience.
+        - Explain technical terms or concepts in simple language appropriate for a 101-level audience.
 
-Engage with the content:
+        Engage with the content:
 
-- Interpret and analyze the information where appropriate, offering insights to help the audience understand its significance.
+        - Interpret and analyze the information where appropriate, offering insights to help the audience understand its significance.
 
-------
+        ------
 
-If there is an identifiable title, present the output in the following format:
+        If there is an identifiable title, present the output in the following format:
 
-{TITLE}
+        {TITLE}
 
-{Content description}
+        {Content description}
 
-If there is no clear title, simply provide the content description.
-'''
+        If there is no clear title, simply provide the content description.
+        '''
 
+        self.system_prompt_text = '''
+        You will be provided with an input prompt and content as context that can be used to reply to the prompt.
+
+        You will do 2 things:
+
+        1. First, you will internally assess whether the content provided is relevant to reply to the input prompt.
+
+        2a. If that is the case, answer directly using this content. If the content is relevant, use elements found in the content to craft a reply to the input prompt.
+
+        2b. If the content is not relevant, use your own knowledge to reply or say that you don't know how to respond if your knowledge is not sufficient to answer.
+
+        Stay concise with your answer, replying specifically to the input prompt without mentioning additional information provided in the context content.
+        '''
 
     def get_img_uri(self, img):
         '''
@@ -113,6 +126,15 @@ If there is no clear title, simply provide the content description.
         '''
         data_uri = self.get_img_uri(img)
         return self.analyze_image(data_uri)    
+
+
+    def get_embeddings(self, text, model="text-embedding-3-small"):
+        embeddings = self.openai.embeddings_create(
+            model=model,
+            input=text,
+            encoding_format="float"
+        )
+        return embeddings.data[0].embedding
 
 
 def main():

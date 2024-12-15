@@ -27,10 +27,16 @@ class OpenAIClientRL:
         # Initializing OpenAI client - see https://platform.openai.com/docs/quickstart?context=python
         self.openai = OpenAI(api_key=os.getenv("MY_OPENAI_API_KEY"))  # pylint: disable=attribute-defined-outside-init
 
-   # Exponential backoff decorator to handle rate limiting
+    
     @backoff.on_exception(backoff.expo, RateLimitError)
     def chat_completions_create(self, **kwargs):
+        ''' Wrapper for openai.chat.completions.create() with exponential backoff for rate limiting '''
         return self.openai.chat.completions.create(**kwargs)
+    
+    @backoff.on_exception(backoff.expo, RateLimitError)
+    def embeddings_create(self, **kwargs):
+        ''' Wrapper for openai.embeddings.create() with exponential backoff for rate limiting '''
+        return self.openai.embeddings.create(**kwargs)
 
 
 def main():
