@@ -10,9 +10,9 @@ tokenizer = BertTokenizer.from_pretrained('bert-base-multilingual-cased')
 # Load pre-trained model (weights)
 model = BertModel.from_pretrained("bert-base-multilingual-cased")
 
-text = "Replace me by any text you'd like."
+TEXT = "Replace me by any text you'd like."
 # Tokenize text
-encoded_input = tokenizer(text, return_tensors='pt')
+encoded_input = tokenizer(TEXT, return_tensors='pt')
 # Create embeddings
 output = model(**encoded_input)
 # Print the output

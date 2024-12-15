@@ -1,3 +1,5 @@
+import sys
+import os
 from pdf2image import convert_from_path
 from pdf2image.exceptions import (
     PDFInfoNotInstalledError,
@@ -5,8 +7,7 @@ from pdf2image.exceptions import (
     PDFSyntaxError
 )
 from pdfminer.high_level import extract_text
-import sys
-import os
+
 
 class PDFPreprocess:
     
@@ -22,14 +23,14 @@ class PDFPreprocess:
     
 
 def main():
-    if (len(sys.argv) == 1):
+    if len(sys.argv) == 1:
         # we use our demo pdf if no pdf is provided
         current_dir = os.path.dirname(os.path.abspath(__file__))
         pdf_path = os.path.join(current_dir, "data/example_pdfs/evals-decks.pdf")
     elif (len(sys.argv) == 2) and (sys.argv[1] == "--help"):
         print("Usage: python pdf_preprocess_image.py <pdf_path>")
         sys.exit(0)
-    elif (len(sys.argv) == 2):
+    elif len(sys.argv) == 2:
         pdf_path = sys.argv[1]
     else:
         print("Usage: python pdf_preprocess_image.py <pdf_path>")
@@ -47,7 +48,7 @@ def main():
             image_path = os.path.join(output_dir, f"page_{i + 1}.png")
             image.save(image_path, "PNG")
         print(f"Saved images to {output_dir}.")
-        
+
         text = processor.extract_text_from_doc(pdf_path)
         print(f"Extracted text: {text[:500]}...")  # Print first 500 characters of extracted text
         # Save extracted text to temp directory for inspection

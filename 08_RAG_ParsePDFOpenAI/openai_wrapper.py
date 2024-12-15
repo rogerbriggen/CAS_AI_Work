@@ -1,8 +1,8 @@
-from openai_ratelimited import OpenAIClientRL
 import base64
 import io
 import sys
 import os
+from openai_ratelimited import OpenAIClientRL
 
 class OpenAIWrapper:
     def __init__(self):
@@ -51,10 +51,11 @@ If there is an identifiable title, present the output in the following format:
 If there is no clear title, simply provide the content description.
 '''
 
-    '''
-    Convert an image to a base64 encoded image in data URI format.
-    '''
+
     def get_img_uri(self, img):
+        '''
+        Convert an image to a base64 encoded image in data URI format.
+        '''
         png_buffer = io.BytesIO()
         img.save(png_buffer, format="PNG")
         png_buffer.seek(0)
@@ -63,23 +64,25 @@ If there is no clear title, simply provide the content description.
 
         data_uri = f"data:image/png;base64,{base64_png}"
         return data_uri
-    
-    '''
-    Convert a PNG file to a base64 encoded image in data URI format.
-    '''
+
+
     def get_img_uri_from_pngfile(self, path):
+        '''
+        Convert a PNG file to a base64 encoded image in data URI format.
+        '''
         with open(path, "rb") as image_file:
             base64_image = base64.b64encode(image_file.read()).decode("utf-8")
         data_uri = f"data:image/png;base64,{base64_image}"
         return data_uri
-    
-    '''
-    Analyze an image (base64encoded) using OpenAI's ChatCompletions API.
-    '''
+
+
     def analyze_image(self, data_uri, system_prompt=None):
+        '''
+        Analyze an image (base64encoded) using OpenAI's ChatCompletions API.
+        '''
         if system_prompt is None:
             system_prompt = self.system_prompt_image
-        print(f"Analyzing image with OpenAI...")
+        print("Analyzing image with OpenAI...")
         #print(f"Data URI: {data_uri}")
         response = self.openai.chat_completions_create(
             model="gpt-4o",
@@ -103,33 +106,34 @@ If there is no clear title, simply provide the content description.
         )
         return response.choices[0].message.content
 
-    '''
-    Analyze a document image (PIL image) using OpenAI's ChatCompletions API.
-    '''
+
     def analyze_doc_image(self, img):
+        '''
+        Analyze a document image (PIL image) using OpenAI's ChatCompletions API.
+        '''
         data_uri = self.get_img_uri(img)
         return self.analyze_image(data_uri)    
 
 
 def main():
-    if (len(sys.argv) == 1):
+    if len(sys.argv) == 1:
         # we use our demo pdf if no pdf is provided
         current_dir = os.path.dirname(os.path.abspath(__file__))
         pdf_path = os.path.join(current_dir, "temp/images/pdf_preprocess/page_1.png")
     elif (len(sys.argv) == 2) and (sys.argv[1] == "--help"):
         print("Usage: python openai_wrapper.py  <image_path_and_name>")
         sys.exit(0)
-    elif (len(sys.argv) == 2):
+    elif len(sys.argv) == 2:
         pdf_path = sys.argv[1]
     else:
         print("Usage: python openai_wrapper.py <image_path_and_name>")
         sys.exit(1)
 
     wrapper = OpenAIWrapper()
-    
+
     try:
         image_uri = wrapper.get_img_uri_from_pngfile(pdf_path)
-        print(f"Converted image to base64 encoded image in data URI format.")
+        print("Converted image to base64 encoded image in data URI format.")
         text = wrapper.analyze_image(image_uri)
         print(f"Extracted text: {text[:500]}...")  # Print first 500 characters of extracted text
 

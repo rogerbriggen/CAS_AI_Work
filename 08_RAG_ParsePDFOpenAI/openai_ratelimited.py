@@ -1,6 +1,6 @@
 import os
-from openai import OpenAI, OpenAIError, RateLimitError
 import threading
+from openai import OpenAI, RateLimitError
 import backoff # for exponential backoff
 
 
@@ -25,14 +25,12 @@ class OpenAIClientRL:
 
     def _initialize(self):
         # Initializing OpenAI client - see https://platform.openai.com/docs/quickstart?context=python
-        self.openai = OpenAI(api_key=os.getenv("MY_OPENAI_API_KEY"))
+        self.openai = OpenAI(api_key=os.getenv("MY_OPENAI_API_KEY"))  # pylint: disable=attribute-defined-outside-init
 
    # Exponential backoff decorator to handle rate limiting
     @backoff.on_exception(backoff.expo, RateLimitError)
     def chat_completions_create(self, **kwargs):
         return self.openai.chat.completions.create(**kwargs)
-
-
 
 
 def main():
