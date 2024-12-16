@@ -44,6 +44,32 @@
       "program": "${file}",
       "console": "integratedTerminal",
       "args": ["-pt=processAll"]
+    },
+    {
+      "name": "Python Debugger: Current File with -pt=runRag Sec En",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "args": [
+        "-pt=runRag",
+        "--pdfPath=data/example_pdfs_securiton_en/",
+        "--jsonFile=temp/pdf_demo_sec_en/parsed_pdf_docs.json",
+        "--embeddingsFile=temp/pdf_demo_sec_en/parsed_pdf_docs_with_embeddings.csv"
+      ]
+    },
+    {
+      "name": "Python Debugger: Current File with -pt=processAll Sec En",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "args": [
+        "-pt=processAll",
+        "--pdfPath=data/example_pdfs_securiton_en/",
+        "--jsonFile=temp/pdf_demo_sec_en/parsed_pdf_docs.json",
+        "--embeddingsFile=temp/pdf_demo_sec_en/parsed_pdf_docs_with_embeddings.csv"
+      ]
     }
   ]
 }

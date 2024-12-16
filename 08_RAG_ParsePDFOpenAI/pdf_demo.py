@@ -178,6 +178,7 @@ class PDFDemo:
         embedded_value_input_text = openai_wrapper.get_embeddings(input_text)
         df_content["similarity"] = df_content.embeddings.apply(lambda x: cosine_similarity(np.array(x).reshape(1,-1), np.array(embedded_value_input_text).reshape(1, -1)))
         res = df_content.sort_values('similarity', ascending=False).head(top_k)
+        res.dropna(axis='index', how='any', inplace=True)
         return res
 
     def rag_get_similarity(self, row):
@@ -232,27 +233,19 @@ class PDFDemo:
         print(f"Completion choices: {completion.choices}")
         return completion.choices[0].message.content
 
-    def run_rag(self, embeddings_file):
+    def run_rag(self, embeddings_file, example_inputs):
         '''
         Run the RAG pipeline on example user queries related to the content.
         embeddings_file: str, path to the csv file with the embeddings
         '''
-
-        # Example user queries related to the content
-        example_inputs = [
-            'What are the main models you offer?',
-            'Do you have a speech recognition model?',
-            'Which embedding model should I use for non-English use cases?',
-            'Can I introduce new knowledge in my LLM app using RAG?',
-            'How many examples do I need to fine-tune a model?',
-            'Which metric can I use to evaluate a summarization task?',
-            'Give me a detailed example for an evaluation process where we are looking for a clear answer to compare to a ground truth.',
-        ]
-        df = self.load_embeddings(embeddings_file)
+        
+        df_content_embeddings = self.load_embeddings(embeddings_file)
         # Running the RAG pipeline on each example
+        results = []
         for ex in example_inputs:
+            
             print(f"QUERY: {ex}\n\n")
-            matching_content = self.rag_search_content(df, ex, 3)
+            matching_content = self.rag_search_content(df_content_embeddings, ex, 5)
             print("Matching content:\n")
             for match in matching_content.iterrows():
                 if isinstance(match, tuple):
@@ -260,8 +253,26 @@ class PDFDemo:
                 print(f"Similarity: {self.rag_get_similarity(match):.2f}")
                 print(f"{match['content'][:100]}{'...' if len(match['content']) > 100 else ''}\n\n")
             reply = self.rag_generate_output(ex, matching_content)
-            print(f"QUERY (repeated): {ex}\n\n")
+            print(f"\n\nQUERY (repeated): {ex}\n")
             print(f"REPLY:\n\n{reply}\n\n--------------\n\n")
+            # Prepare the results
+            results.append({
+                "input": ex,
+                "reply": reply,
+                "matching_content": matching_content
+            })
+            
+        # Save to file
+        df_results = pd.DataFrame(results)
+        df_results["Created"] = pd.to_datetime("now").strftime("%Y-%m-%d %H:%M:%S")
+        embeddings_file_dir = os.path.dirname(os.path.abspath(embeddings_file))
+        rag_results_file = os.path.join(embeddings_file_dir, "rag_results.json")
+        # We append it to the existing file
+        if os.path.exists(rag_results_file):
+            df_file = pd.read_json(rag_results_file)
+            df_results = pd.concat([df_file, df_results], ignore_index=True)
+        df_results.to_json(rag_results_file, index=False)
+        
 
 
 def main():
@@ -291,20 +302,61 @@ def main():
 
     current_dir = os.path.dirname(os.path.abspath(__file__))
     if args.pdfPath:
-        pdf_files_path = args.pdfPath
+        if not os.path.isabs(args.pdfPath):
+            pdf_files_path = os.path.join(current_dir, args.pdfPath)
+        else:
+            pdf_files_path = args.pdfPath
     else :
+        # set default path
         pdf_files_path = os.path.join(current_dir, "data/example_pdfs/")
 
     if args.jsonFile:
-        json_file = args.jsonFile
+        if not os.path.isabs(args.jsonFile):
+            json_file = os.path.join(current_dir, args.jsonFile)
+        else:
+            json_file = args.jsonFile
     else:
+        # set default path
         json_file = os.path.join(current_dir, "temp/pdf_demo/parsed_pdf_docs.json")
 
     if args.embeddingsFile:
-        embeddings_file = args.embeddingsFile
+        if not os.path.isabs(args.embeddingsFile):
+            embeddings_file = os.path.join(current_dir, args.embeddingsFile)
+        else:
+            embeddings_file = args.jsoembeddingsFilenFile
     else:
+        # set default path
         embeddings_file = os.path.join(current_dir, "temp/pdf_demo/parsed_pdf_docs_with_embeddings.csv")
 
+    if args.pdfPath == "data/example_pdfs_securiton_en/":
+        # Example user queries related to the own content in english
+        example_inputs = [
+            'What are the main products you offer?',
+            'What can FidesNet do?',
+            'What are the main features of ASD 535?',
+            'Does an ASD 535 have ethernet support?',
+            'Which ASD has ethernet support?'            
+        ]
+    elif args.pdfPath == "data/example_pdfs_securiton_de/":
+        # Example user queries related to the own content in english
+        example_inputs = [
+            'Welches sind die Hauptprodukte? Antworte bitte auf Deutsch.',
+            'Was kann FidesNet? Antworte bitte auf Deutsch.',
+            'Was sind die Hauptfunktionen vom ASD 535?',
+            'Kann ein ASD 535 mit Ethernet vernetzt werden?',
+            'Welches ASD hat Ethernet Support?'            
+        ]
+    else:
+        # Example user queries related to the content
+        example_inputs = [
+                'What are the main models you offer?',
+                'Do you have a speech recognition model?',
+                'Which embedding model should I use for non-English use cases?',
+                'Can I introduce new knowledge in my LLM app using RAG?',
+                'How many examples do I need to fine-tune a model?',
+                'Which metric can I use to evaluate a summarization task?',
+                'Give me a detailed example for an evaluation process where we are looking for a clear answer to compare to a ground truth.',
+            ]
     pdf_demo = PDFDemo()
 
     if args.processType == str_extract_text:
@@ -317,7 +369,7 @@ def main():
         pdf_demo.create_embeddings(docs, embeddings_file)
         print(f"Saved embeddings to {embeddings_file}")
     elif args.processType == str_run_rag:
-        pdf_demo.run_rag(embeddings_file)
+        pdf_demo.run_rag(embeddings_file, example_inputs=example_inputs)
         print("RAG finished")
     elif args.processType == str_process_all:
         # extract text
@@ -330,7 +382,7 @@ def main():
         pdf_demo.create_embeddings(docs, embeddings_file)
         print(f"Saved embeddings to {embeddings_file}")
         # run rag
-        pdf_demo.run_rag(embeddings_file)
+        pdf_demo.run_rag(embeddings_file, example_inputs=example_inputs)
         print("RAG finished")
     else:
         print("Invalid process type")
