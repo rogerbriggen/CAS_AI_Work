@@ -10,6 +10,12 @@ The environment can be created with conda:
 conda env create -f environment.yml
 ````
 
+The environment can be updated with conda:
+
+````shell
+conda env update --file environment.yml --prune
+````
+
 To save the updated environment:
 
 ````shell
