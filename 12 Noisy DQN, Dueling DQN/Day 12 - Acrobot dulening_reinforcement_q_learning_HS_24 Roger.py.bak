@@ -556,7 +556,7 @@ def objective(trial):
     global target_net
     global optimizer
     global steps_done
-    # Convert exponent to actual feature size (2^exponent)
+	# Convert exponent to actual feature size (2^exponent)
     policy_net = DQN(n_observations, n_actions,  linear_features=2**linear_feature_exponent, linear_features_out=2**linear_features_out_exponent, advantage_features=2**advantage_feature_exponent, value_features=2**value_feature_exponent).to(device)
     target_net = DQN(n_observations, n_actions,  linear_features=2**linear_feature_exponent, linear_features_out=2**linear_features_out_exponent, advantage_features=2**advantage_feature_exponent, value_features=2**value_feature_exponent).to(device)
     target_net.load_state_dict(policy_net.state_dict())

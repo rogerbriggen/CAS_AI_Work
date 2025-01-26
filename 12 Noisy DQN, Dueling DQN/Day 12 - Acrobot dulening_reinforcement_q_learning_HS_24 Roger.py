@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+
+# Acrobot https://gymnasium.farama.org/environments/classic_control/acrobot/
+
 # In[48]:
 
 
@@ -91,7 +94,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
-env = gym.make("CartPole-v1")
+env = gym.make('Acrobot-v1', render_mode="rgb_array")
 
 # set up matplotlib
 is_ipython = 'inline' in matplotlib.get_backend()
@@ -356,11 +359,12 @@ def select_action(state):
 episode_durations = []
 
 
-def plot_durations(show_result=False):
+def plot_durations(show_result=False, filename="result.png"):
     plt.figure(1)
     durations_t = torch.tensor(episode_durations, dtype=torch.float)
     if show_result:
         plt.title('Result')
+        plt.savefig(filename)
     else:
         plt.clf()
         plt.title('Training...')
@@ -525,6 +529,7 @@ if use_optuna == False:
 import optuna
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
@@ -539,11 +544,40 @@ def objective(trial):
     print("Trial:", trial.number)
     # Get parameters to optimize
     # Suggest an exponent in the range [7, 11] (corresponding to 128 to 1024)
-   
-    linear_feature_exponent = trial.suggest_int("linear_feature_exponent", 7, 10)
-    linear_features_out_exponent = trial.suggest_int("linear_features_out_exponent", 7, 10)
-    advantage_feature_exponent = trial.suggest_int("advantage_feature_exponent", 7, 10)
-    value_feature_exponent = trial.suggest_int("value_feature_exponent", 7, 10)
+    #linear_feature_exponent = trial.suggest_int("linear_feature_exponent", 7, 10)
+    #linear_features_out_exponent = trial.suggest_int("linear_features_out_exponent", 7, 10)
+    #advantage_feature_exponent = trial.suggest_int("advantage_feature_exponent", 7, 10)
+    #value_feature_exponent = trial.suggest_int("value_feature_exponent", 7, 10)
+    linear_feature_exponent = 10
+    linear_features_out_exponent = 7
+    advantage_feature_exponent = 9
+    value_feature_exponent = 7
+
+    global BATCH_SIZE
+    global GAMMA
+    global EPS_START
+    global EPS_END
+    global EPS_DECAY
+    global TAU
+    global LR
+
+    #BATCH_SIZE = 128
+    #GAMMA = 0.99
+    #EPS_START = 0.9  # 0.9
+    #EPS_END = 0.05
+    #EPS_DECAY = 1000 # 1000
+    #TAU = 0.005  # 0.005
+    #LR = 1e-4
+    
+    BATCH_SIZE_EXPONENT = trial.suggest_int("batch_size_exponent", 7, 8)
+    BATCH_SIZE = 2**BATCH_SIZE_EXPONENT
+    GAMMA = 0.99
+    EPS_START = trial.suggest_float("eps_start", 0.8, 1.0)
+    EPS_END = trial.suggest_float("eps_end", 0.01, 0.1)
+    EPS_DECAY = trial.suggest_int("eps_decay", 500, 2000)
+    TAU = trial.suggest_float("tau", 0.001, 0.01)
+    LR = 1e-4
+    
     
     if torch.cuda.is_available() or torch.backends.mps.is_available():
         num_episodes = 500  # 600
@@ -620,19 +654,19 @@ def objective(trial):
 
             # fast finish if we do not learn well enough
 
-            if i_episode > 400 and np.mean([r.cpu().numpy() for r in rewards[-10:]]) < 80:
-                print(f"Fast finish at episode: ", i_episode)
-                fast_finish = True
-                episode_durations.append(t + 1)
-                rewards.append(total_reward)
-                plot_durations()
-                break
+            #if i_episode > 400 and np.mean([r.cpu().numpy() for r in rewards[-10:]]) > 100:
+            #    print(f"Fast finish at episode: ", i_episode)
+            #    fast_finish = True
+            #    episode_durations.append(t + 1)
+            #    rewards.append(total_reward)
+            #    plot_durations()
+            #    break
 
     return -np.mean([r.cpu().numpy() for r in rewards[-100:]])  # Return negative mean reward for last 100 episodes
 
 # Create and run study
-study_name = "DuelingDQN: Feature Sizes"
-study_storage="sqlite:///dueling_dqn.db"
+study_name = "Acrobot DuelingDQN Hyperparameter Optimization"
+study_storage="sqlite:///acrobot_dueling_dqn.db"
 optuna.delete_study(study_name=study_name, storage=study_storage)
 study = optuna.create_study(direction="minimize", study_name=study_name, storage=study_storage, load_if_exists=True)
 study.optimize(objective, n_trials=20)
@@ -640,6 +674,11 @@ study.optimize(objective, n_trials=20)
 # Print results
 print("Best parameters:", study.best_params)
 print("Best value:", study.best_value)
+
+# Sanitize filename and ensure proper path
+plot_filename = os.path.join("results", f"{study_name.replace(':', '_').replace(" ", "_")}.png")
+os.makedirs(os.path.dirname(plot_filename), exist_ok=True)
+plot_durations(show_result=True, filename=plot_filename)
 
 # Plot optimization history
 import optuna.visualization as vis
@@ -667,35 +706,3 @@ vis.plot_parallel_coordinate(study)
 
 
 
-# # Results
-# 
-# ## Default
-# 
-# ![image.png](attachment:image.png)
-# 
-# ### Run 2
-# 
-# ![image-4.png](attachment:image-4.png)
-# 
-# ## EPS_START from 0.9 to 0.99 and EPS_DECAY from 1000 to 10000
-# 
-# ![image-2.png](attachment:image-2.png)
-# 
-# ## TAU = 0.05  # 0.005
-# 
-# ![image-3.png](attachment:image-3.png)
-
-# Here is the diagram that illustrates the overall resulting data flow.
-# 
-# ![](https://pytorch.org/tutorials/_static/img/reinforcement_learning_diagram.jpg)
-# 
-# Actions are chosen either randomly or based on a policy, getting the
-# next step sample from the gym environment. We record the results in the
-# replay memory and also run optimization step on every iteration.
-# Optimization picks a random batch from the replay memory to do training
-# of the new policy. The \"older\" target\_net is also used in
-# optimization to compute the expected Q values. A soft update of its
-# weights are performed at every step.
-# 
-
-# 

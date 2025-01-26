@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[48]:
+# In[11]:
 
 
 # For tips on running notebooks in Google Colab, see
@@ -68,14 +68,14 @@
 # -   automatic differentiation (`torch.autograd`)
 # 
 
-# In[49]:
+# In[12]:
 
 
 #%%bash
 #pip3 install gymnasium[classic_control]
 
 
-# In[50]:
+# In[13]:
 
 
 import gymnasium as gym
@@ -92,6 +92,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 env = gym.make("CartPole-v1")
+
 
 # set up matplotlib
 is_ipython = 'inline' in matplotlib.get_backend()
@@ -128,7 +129,7 @@ device = torch.device(
 #     method for selecting a random batch of transitions for training.
 # 
 
-# In[51]:
+# In[14]:
 
 
 Transition = namedtuple('Transition',
@@ -220,11 +221,12 @@ class ReplayMemory(object):
 # current input.
 # 
 
-# In[52]:
+# In[15]:
 
 
 class NoisyLinear(nn.Linear):
     def __init__(self, in_features, out_features, sigma_init=0.017, bias=True):
+        print("NoisyLinear: in_features={}, out_features={}, sigma_init={}, bias={}".format(in_features, out_features, sigma_init, bias))
         super(NoisyLinear, self).__init__(in_features, out_features, bias=bias)
         self.sigma_weight = nn.Parameter(torch.full((out_features, in_features), sigma_init))
         self.register_buffer("epsilon_weight", torch.zeros(out_features, in_features))
@@ -248,36 +250,23 @@ class NoisyLinear(nn.Linear):
 
 
 
-# In[53]:
+# In[16]:
 
 
 class DQN(nn.Module):
 
-    def __init__(self, n_observations, n_actions, linear_features=512, linear_features_out=512, advantage_features=512, value_features=512):
+    def __init__(self, n_observations, n_actions, sigma_init=0.3):
         super(DQN, self).__init__()
-        self.layer1 = nn.Linear(n_observations, linear_features)
-        self.layer2 = nn.Linear(linear_features, linear_features_out)
-
-        self.fc_adv = nn.Sequential(
-            nn.Linear(linear_features_out, advantage_features),
-            nn.ReLU(),
-            nn.Linear(advantage_features, n_actions)
-        )
-        self.fc_val = nn.Sequential(
-            nn.Linear(linear_features_out, value_features),
-            nn.ReLU(),
-            nn.Linear(value_features, 1)
-        )
+        self.layer1 = nn.Linear(n_observations, 128)
+        self.layer2 = nn.Linear(128, 512)
+        self.layer3 = NoisyLinear(512, n_actions, sigma_init=sigma_init)
 
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
     def forward(self, x):
         x = F.relu(self.layer1(x))
         x = F.relu(self.layer2(x))
-
-        val = self.fc_val(x)
-        adv = self.fc_adv(x)
-        return val + adv - adv.mean() # ist gleich Q Value
+        return self.layer3(x)
 
 
 # Training
@@ -302,7 +291,7 @@ class DQN(nn.Module):
 #     episode.
 # 
 
-# In[54]:
+# In[17]:
 
 
 # BATCH_SIZE is the number of transitions sampled from the replay buffer
@@ -314,10 +303,10 @@ class DQN(nn.Module):
 # LR is the learning rate of the ``AdamW`` optimizer
 BATCH_SIZE = 128
 GAMMA = 0.99
-EPS_START = 0.9  # 0.9
-EPS_END = 0.05
-EPS_DECAY = 1000 # 1000
-TAU = 0.005  # 0.005
+#EPS_START = 0.9
+#EPS_END = 0.05
+#EPS_DECAY = 1000
+TAU = 0.005
 LR = 1e-4
 
 # Get number of actions from gym action space
@@ -326,6 +315,7 @@ n_actions = env.action_space.n
 state, info = env.reset()
 n_observations = len(state)
 
+# will be overwritten by optuna
 #policy_net = DQN(n_observations, n_actions).to(device)
 #target_net = DQN(n_observations, n_actions).to(device)
 #target_net.load_state_dict(policy_net.state_dict())
@@ -339,19 +329,13 @@ n_observations = len(state)
 
 def select_action(state):
     global steps_done
-    sample = random.random()
-    eps_threshold = EPS_END + (EPS_START - EPS_END) * \
-        math.exp(-1. * steps_done / EPS_DECAY)
     steps_done += 1
-    #print(f"Epsilon {eps_threshold} , steps_done = {steps_done}")
-    if sample > eps_threshold:
-        with torch.no_grad():
-            # t.max(1) will return the largest column value of each row.
-            # second column on max result is index of where max element was
-            # found, so we pick action with the larger expected reward.
-            return policy_net(state).max(1).indices.view(1, 1)
-    else:
-        return torch.tensor([[env.action_space.sample()]], device=device, dtype=torch.long)
+
+    with torch.no_grad():
+        # t.max(1) will return the largest column value of each row.
+        # second column on max result is index of where max element was
+        # found, so we pick action with the larger expected reward.
+        return policy_net(state).max(1).indices.view(1, 1)
 
 episode_durations = []
 
@@ -398,7 +382,7 @@ def plot_durations(show_result=False):
 # hyperparameter `TAU`, which was previously defined.
 # 
 
-# In[55]:
+# In[18]:
 
 
 def optimize_model():
@@ -463,7 +447,8 @@ def optimize_model():
 # observed.
 # 
 
-# In[56]:
+# In[19]:
+
 
 use_optuna = True # Skip this for now as we want to use aptuna to tune the hyperparameters
 if use_optuna == False:
@@ -516,6 +501,27 @@ if use_optuna == False:
     plt.show()
 
 
+# # Results
+# 
+# ## Default
+# 
+# ![image.png](attachment:image.png)
+
+# Here is the diagram that illustrates the overall resulting data flow.
+# 
+# ![](https://pytorch.org/tutorials/_static/img/reinforcement_learning_diagram.jpg)
+# 
+# Actions are chosen either randomly or based on a policy, getting the
+# next step sample from the gym environment. We record the results in the
+# replay memory and also run optimization step on every iteration.
+# Optimization picks a random batch from the replay memory to do training
+# of the new policy. The \"older\" target\_net is also used in
+# optimization to compute the expected Q values. A soft update of its
+# weights are performed at every step.
+# 
+
+# In[33]:
+
 
 # Optuna hyperparameter optimization
 # Install and import
@@ -538,13 +544,7 @@ from sklearn.metrics import accuracy_score
 def objective(trial):
     print("Trial:", trial.number)
     # Get parameters to optimize
-    # Suggest an exponent in the range [7, 11] (corresponding to 128 to 1024)
-   
-    linear_feature_exponent = trial.suggest_int("linear_feature_exponent", 7, 10)
-    linear_features_out_exponent = trial.suggest_int("linear_features_out_exponent", 7, 10)
-    advantage_feature_exponent = trial.suggest_int("advantage_feature_exponent", 7, 10)
-    value_feature_exponent = trial.suggest_int("value_feature_exponent", 7, 10)
-    
+    sigma = trial.suggest_float("sigma_init", 0.01, 0.50, log=True)
     if torch.cuda.is_available() or torch.backends.mps.is_available():
         num_episodes = 500  # 600
     else:
@@ -556,9 +556,8 @@ def objective(trial):
     global target_net
     global optimizer
     global steps_done
-    # Convert exponent to actual feature size (2^exponent)
-    policy_net = DQN(n_observations, n_actions,  linear_features=2**linear_feature_exponent, linear_features_out=2**linear_features_out_exponent, advantage_features=2**advantage_feature_exponent, value_features=2**value_feature_exponent).to(device)
-    target_net = DQN(n_observations, n_actions,  linear_features=2**linear_feature_exponent, linear_features_out=2**linear_features_out_exponent, advantage_features=2**advantage_feature_exponent, value_features=2**value_feature_exponent).to(device)
+    policy_net = DQN(n_observations, n_actions, sigma).to(device)
+    target_net = DQN(n_observations, n_actions, sigma).to(device)
     target_net.load_state_dict(policy_net.state_dict())
 
     optimizer = optim.AdamW(policy_net.parameters(), lr=LR, amsgrad=True)   
@@ -619,9 +618,8 @@ def objective(trial):
                 break
 
             # fast finish if we do not learn well enough
-
-            if i_episode > 400 and np.mean([r.cpu().numpy() for r in rewards[-10:]]) < 80:
-                print(f"Fast finish at episode: ", i_episode)
+            if i_episode > 200 and np.mean([r.cpu().numpy() for r in rewards[-10:]]) < 80:
+                print("Fast finish")
                 fast_finish = True
                 episode_durations.append(t + 1)
                 rewards.append(total_reward)
@@ -631,9 +629,9 @@ def objective(trial):
     return -np.mean([r.cpu().numpy() for r in rewards[-100:]])  # Return negative mean reward for last 100 episodes
 
 # Create and run study
-study_name = "DuelingDQN: Feature Sizes"
-study_storage="sqlite:///dueling_dqn.db"
-optuna.delete_study(study_name=study_name, storage=study_storage)
+study_name = "NoisyDQN: Sigma Initialization Log"
+study_storage="sqlite:///noisy_dqn4.db"
+#optuna.delete_study(study_name=study_name, storage=study_storage)
 study = optuna.create_study(direction="minimize", study_name=study_name, storage=study_storage, load_if_exists=True)
 study.optimize(objective, n_trials=20)
 
@@ -665,37 +663,3 @@ vis.plot_parallel_coordinate(study)
 # Contour plot to explore hyperparameter relationships
 #vis.plot_contour(study)
 
-
-
-# # Results
-# 
-# ## Default
-# 
-# ![image.png](attachment:image.png)
-# 
-# ### Run 2
-# 
-# ![image-4.png](attachment:image-4.png)
-# 
-# ## EPS_START from 0.9 to 0.99 and EPS_DECAY from 1000 to 10000
-# 
-# ![image-2.png](attachment:image-2.png)
-# 
-# ## TAU = 0.05  # 0.005
-# 
-# ![image-3.png](attachment:image-3.png)
-
-# Here is the diagram that illustrates the overall resulting data flow.
-# 
-# ![](https://pytorch.org/tutorials/_static/img/reinforcement_learning_diagram.jpg)
-# 
-# Actions are chosen either randomly or based on a policy, getting the
-# next step sample from the gym environment. We record the results in the
-# replay memory and also run optimization step on every iteration.
-# Optimization picks a random batch from the replay memory to do training
-# of the new policy. The \"older\" target\_net is also used in
-# optimization to compute the expected Q values. A soft update of its
-# weights are performed at every step.
-# 
-
-# 
