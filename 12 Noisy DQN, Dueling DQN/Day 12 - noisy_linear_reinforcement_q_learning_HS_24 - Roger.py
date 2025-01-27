@@ -340,11 +340,12 @@ def select_action(state):
 episode_durations = []
 
 
-def plot_durations(show_result=False):
+def plot_durations(show_result=False, filename='Result.png'):
     plt.figure(1)
     durations_t = torch.tensor(episode_durations, dtype=torch.float)
     if show_result:
         plt.title('Result')
+        plt.savefig(filename)
     else:
         plt.clf()
         plt.title('Training...')
@@ -531,6 +532,7 @@ if use_optuna == False:
 import optuna
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
@@ -543,8 +545,30 @@ from sklearn.metrics import accuracy_score
 # Define objective function
 def objective(trial):
     print("Trial:", trial.number)
+
+    global BATCH_SIZE
+    global GAMMA
+    global TAU
+    global LR
+
+    # original values
+    BATCH_SIZE = 128
+    GAMMA = 0.99
+    #EPS_START = 0.9
+    #EPS_END = 0.05
+    #EPS_DECAY = 1000
+    TAU = 0.005
+    LR = 1e-4
+
     # Get parameters to optimize
-    sigma = trial.suggest_float("sigma_init", 0.01, 0.50, log=True)
+    #sigma = trial.suggest_float("sigma_init", 0.01, 0.50, log=True)  # best was 0.01 - 0.05
+    trial.set_user_attr("sigma_init", 0.02)
+    sigma = 0.02  # Best from previous experiments
+    BATCH_SIZE_EXPONENT = trial.suggest_int("batch_size_exponent", 6, 8)
+    BATCH_SIZE = 2**BATCH_SIZE_EXPONENT
+    GAMMA = trial.suggest_float("gamma", 0.9, 0.99)
+    TAU = trial.suggest_float("tau", 0.001, 0.01)
+    LR = trial.suggest_float("lr", 1e-5, 1e-3, log=True)
     if torch.cuda.is_available() or torch.backends.mps.is_available():
         num_episodes = 500  # 600
     else:
@@ -618,26 +642,31 @@ def objective(trial):
                 break
 
             # fast finish if we do not learn well enough
-            if i_episode > 200 and np.mean([r.cpu().numpy() for r in rewards[-10:]]) < 80:
-                print("Fast finish")
-                fast_finish = True
-                episode_durations.append(t + 1)
-                rewards.append(total_reward)
-                plot_durations()
-                break
+            #if i_episode > 200 and np.mean([r.cpu().numpy() for r in rewards[-10:]]) < 80:
+            #    print("Fast finish")
+            #    fast_finish = True
+            #    episode_durations.append(t + 1)
+            #    rewards.append(total_reward)
+            #    plot_durations()
+            #    break
 
     return -np.mean([r.cpu().numpy() for r in rewards[-100:]])  # Return negative mean reward for last 100 episodes
 
 # Create and run study
-study_name = "NoisyDQN: Sigma Initialization Log"
+study_name = "NoisyDQN: HyperParams Log"
 study_storage="sqlite:///noisy_dqn4.db"
 #optuna.delete_study(study_name=study_name, storage=study_storage)
 study = optuna.create_study(direction="minimize", study_name=study_name, storage=study_storage, load_if_exists=True)
-study.optimize(objective, n_trials=20)
+study.optimize(objective, n_trials=50)
 
 # Print results
 print("Best parameters:", study.best_params)
 print("Best value:", study.best_value)
+
+# Sanitize filename and ensure proper path
+plot_filename = os.path.join("results", f"{study_name.replace(':', '_').replace(" ", "_")}.png")
+os.makedirs(os.path.dirname(plot_filename), exist_ok=True)
+plot_durations(show_result=True, filename=plot_filename)
 
 # Plot optimization history
 import optuna.visualization as vis

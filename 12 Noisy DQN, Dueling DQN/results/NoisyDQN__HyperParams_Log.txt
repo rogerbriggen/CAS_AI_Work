@@ -1,0 +1,204 @@
+(gym) C:\git\CAS_AI_Work\12 Noisy DQN, Dueling DQN>C:/Users/roger/anaconda3/envs/gym/python.exe "c:/git/CAS_AI_Work/12 Noisy DQN, Dueling DQN/Day 12 - noisy_linear_reinforcement_q_learning_HS_24 - Roger.py"
+[I 2025-01-27 08:12:34,916] Using an existing study with name 'NoisyDQN: HyperParams Log' instead of creating a new one.
+Trial: 1
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 08:13:06,750] Trial 1 finished with value: -9.4399995803833 and parameters: {'batch_size_exponent': 6, 'gamma': 0.9626627993777082, 'tau': 0.008670556388144138, 'lr': 3.9418367407883185e-05}. Best is trial 1 with value: -9.4399995803833.
+Trial: 2
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 08:15:10,330] Trial 2 finished with value: -183.2100067138672 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9773531169238895, 'tau': 0.003805121212562512, 'lr': 6.664319693477618e-05}. Best is trial 2 with value: -183.2100067138672.
+Trial: 3
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 08:16:17,533] Trial 3 finished with value: -92.81999969482422 and parameters: {'batch_size_exponent': 8, 'gamma': 0.902631513756449, 'tau': 0.006000346246008351, 'lr': 5.6097583812369144e-05}. Best is trial 2 with value: -183.2100067138672.
+Trial: 4
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 08:19:35,626] Trial 4 finished with value: -183.11000061035156 and parameters: {'batch_size_exponent': 6, 'gamma': 0.9317386400682448, 'tau': 0.005055425810940695, 'lr': 0.0003363451924027002}. Best is trial 2 with value: -183.2100067138672.
+Trial: 5
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 08:20:04,496] Trial 5 finished with value: -9.380000114440918 and parameters: {'batch_size_exponent': 6, 'gamma': 0.9172495123579951, 'tau': 0.0026133776017653355, 'lr': 6.573778932387045e-05}. Best is trial 2 with value: -183.2100067138672.
+Trial: 6
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 08:20:36,112] Trial 6 finished with value: -9.380000114440918 and parameters: {'batch_size_exponent': 8, 'gamma': 0.9386647827024442, 'tau': 0.004087520226979628, 'lr': 1.3576332946625147e-05}. Best is trial 2 with value: -183.2100067138672.
+Trial: 7
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 08:21:31,569] Trial 7 finished with value: -81.69000244140625 and parameters: {'batch_size_exponent': 8, 'gamma': 0.9728193512777181, 'tau': 0.005352882418789473, 'lr': 6.674357970903724e-05}. Best is trial 2 with value: -183.2100067138672.
+Trial: 8
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 08:24:21,236] Trial 8 finished with value: -172.10000610351562 and parameters: {'batch_size_exponent': 6, 'gamma': 0.9801232394589661, 'tau': 0.0016441961710766603, 'lr': 0.0003739507184007923}. Best is trial 2 with value: -183.2100067138672.
+Trial: 9
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 08:24:54,456] Trial 9 finished with value: -9.40999984741211 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9143769793099231, 'tau': 0.005702840285105074, 'lr': 1.3767414975825264e-05}. Best is trial 2 with value: -183.2100067138672.
+Trial: 10
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 08:29:14,183] Trial 10 finished with value: -295.5899963378906 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9213568514957925, 'tau': 0.0033643084954687943, 'lr': 0.0002560204633689114}. Best is trial 10 with value: -295.5899963378906.
+Trial: 11
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 08:35:29,857] Trial 11 finished with value: -317.1000061035156 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9581556022500471, 'tau': 0.007919895936098195, 'lr': 0.000886513671917095}. Best is trial 11 with value: -317.1000061035156.
+Trial: 12
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 08:36:04,109] Trial 12 finished with value: -9.350000381469727 and parameters: {'batch_size_exponent': 7, 'gamma': 0.955254678660464, 'tau': 0.008572519799012444, 'lr': 0.0009417731526775055}. Best is trial 11 with value: -317.1000061035156.
+Trial: 13
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 08:43:15,388] Trial 13 finished with value: -497.6400146484375 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9491496511744054, 'tau': 0.007868829531732624, 'lr': 0.0002508553079621736}. Best is trial 13 with value: -497.6400146484375.
+Trial: 14
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 08:47:13,151] Trial 14 finished with value: -227.30999755859375 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9492676822044617, 'tau': 0.0070818656576621284, 'lr': 0.0009790341847699122}. Best is trial 13 with value: -497.6400146484375.
+Trial: 15
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 08:47:48,912] Trial 15 finished with value: -9.34000015258789 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9674695428931915, 'tau': 0.009748533389719656, 'lr': 0.00017955779024963328}. Best is trial 13 with value: -497.6400146484375.
+Trial: 16
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 08:55:39,138] Trial 16 finished with value: -363.1199951171875 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9873019892456003, 'tau': 0.00738333833929444, 'lr': 0.0005755901007764556}. Best is trial 13 with value: -497.6400146484375.
+Trial: 17
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 09:03:20,694] Trial 17 finished with value: -401.1300048828125 and parameters: {'batch_size_exponent': 8, 'gamma': 0.9897496759019372, 'tau': 0.0070508827420148, 'lr': 0.0005080859951402105}. Best is trial 13 with value: -497.6400146484375.
+Trial: 18
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 09:08:37,850] Trial 18 finished with value: -223.99000549316406 and parameters: {'batch_size_exponent': 8, 'gamma': 0.9895777421600321, 'tau': 0.009973547095599396, 'lr': 0.00016559975988209399}. Best is trial 13 with value: -497.6400146484375.
+Trial: 19
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 09:10:11,601] Trial 19 finished with value: -129.74000549316406 and parameters: {'batch_size_exponent': 8, 'gamma': 0.9413281234158617, 'tau': 0.006492756744690973, 'lr': 0.0001497924605224681}. Best is trial 13 with value: -497.6400146484375.
+Trial: 20
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 09:14:26,912] Trial 20 finished with value: -211.42999267578125 and parameters: {'batch_size_exponent': 8, 'gamma': 0.9301491467250399, 'tau': 0.008568889072096391, 'lr': 0.000457500441105385}. Best is trial 13 with value: -497.6400146484375.
+Trial: 21
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 09:19:03,079] Trial 21 finished with value: -257.1199951171875 and parameters: {'batch_size_exponent': 8, 'gamma': 0.9488583414192027, 'tau': 0.0073463897715185375, 'lr': 0.0002450073473110885}. Best is trial 13 with value: -497.6400146484375.
+Trial: 22
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 09:25:36,983] Trial 22 finished with value: -498.0899963378906 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9891486539284453, 'tau': 0.0069514068850417545, 'lr': 0.000525166660957017}. Best is trial 22 with value: -498.0899963378906.
+Trial: 23
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 09:31:50,271] Trial 23 finished with value: -186.6199951171875 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9847283893291019, 'tau': 0.006537209851736725, 'lr': 0.0005667995526288834}. Best is trial 22 with value: -498.0899963378906.
+Trial: 24
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 09:33:29,192] Trial 24 finished with value: -118.33000183105469 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9756203802110388, 'tau': 0.007728827380234243, 'lr': 0.00011769195897006443}. Best is trial 22 with value: -498.0899963378906.
+Trial: 25
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 09:34:07,213] Trial 25 finished with value: -9.229999542236328 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9687806782870203, 'tau': 0.006705381894077249, 'lr': 0.000566038490854352}. Best is trial 22 with value: -498.0899963378906.
+Trial: 26
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 09:36:06,490] Trial 26 finished with value: -327.1700134277344 and parameters: {'batch_size_exponent': 6, 'gamma': 0.982021321759418, 'tau': 0.004706634308984518, 'lr': 0.00025571350934181853}. Best is trial 22 with value: -498.0899963378906.
+Trial: 27
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 09:40:40,942] Trial 27 finished with value: -222.1300048828125 and parameters: {'batch_size_exponent': 8, 'gamma': 0.9052645261542113, 'tau': 0.009133623639085185, 'lr': 0.0003327224876544467}. Best is trial 22 with value: -498.0899963378906.
+Trial: 28
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 09:41:19,613] Trial 28 finished with value: -9.40999984741211 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9895358617786917, 'tau': 0.008166821148946285, 'lr': 0.0007079664776418382}. Best is trial 22 with value: -498.0899963378906.
+Trial: 29
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 09:48:51,470] Trial 29 finished with value: -442.5199890136719 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9633615403264825, 'tau': 0.005822589830183315, 'lr': 0.0004297174597589198}. Best is trial 22 with value: -498.0899963378906.
+Trial: 30
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 09:50:57,715] Trial 30 finished with value: -264.9200134277344 and parameters: {'batch_size_exponent': 6, 'gamma': 0.9621104058273539, 'tau': 0.005985380373416244, 'lr': 0.00010711891470996916}. Best is trial 22 with value: -498.0899963378906.
+Trial: 31
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 09:54:33,333] Trial 31 finished with value: -345.3999938964844 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9518924045579209, 'tau': 0.009201568624145843, 'lr': 0.00020986538302109745}. Best is trial 22 with value: -498.0899963378906.
+Trial: 32
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 10:00:58,077] Trial 32 finished with value: -472.55999755859375 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9640077193189635, 'tau': 0.006417814923400394, 'lr': 0.0003940385234537793}. Best is trial 22 with value: -498.0899963378906.
+Trial: 33
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 10:06:33,898] Trial 33 finished with value: -470.57000732421875 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9636727260668397, 'tau': 0.006203446093522151, 'lr': 0.00041118399703740297}. Best is trial 22 with value: -498.0899963378906.
+Trial: 34
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 10:07:23,714] Trial 34 finished with value: -20.049999237060547 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9685582510544101, 'tau': 0.00459417515539943, 'lr': 2.3169439394810953e-05}. Best is trial 22 with value: -498.0899963378906.
+Trial: 35
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 10:11:08,201] Trial 35 finished with value: -180.0800018310547 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9430173442690943, 'tau': 0.006339846223106096, 'lr': 0.0003162720803432932}. Best is trial 22 with value: -498.0899963378906.
+Trial: 36
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 10:11:48,503] Trial 36 finished with value: -9.270000457763672 and parameters: {'batch_size_exponent': 6, 'gamma': 0.9594161287393533, 'tau': 0.0050899242320221715, 'lr': 0.0007283459608038495}. Best is trial 22 with value: -498.0899963378906.
+Trial: 37
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 10:15:20,399] Trial 37 finished with value: -155.22999572753906 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9359294715008039, 'tau': 0.007845106903455976, 'lr': 0.00032756197126479903}. Best is trial 22 with value: -498.0899963378906.
+Trial: 38
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 10:20:49,145] Trial 38 finished with value: -380.5199890136719 and parameters: {'batch_size_exponent': 6, 'gamma': 0.9550503642061622, 'tau': 0.0068495732170006, 'lr': 0.0004053752462040197}. Best is trial 22 with value: -498.0899963378906.
+Trial: 39
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 10:21:31,656] Trial 39 finished with value: -10.09000015258789 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9751080429643293, 'tau': 0.0062169076615300935, 'lr': 4.007445546920879e-05}. Best is trial 22 with value: -498.0899963378906.
+Trial: 40
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 10:23:31,524] Trial 40 finished with value: -116.33000183105469 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9467017957067057, 'tau': 0.0053951526170140755, 'lr': 8.744917361463411e-05}. Best is trial 22 with value: -498.0899963378906.
+Trial: 41
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 10:30:20,200] Trial 41 finished with value: -424.20001220703125 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9715942316894004, 'tau': 0.0040133446376544426, 'lr': 0.0007467040342973717}. Best is trial 22 with value: -498.0899963378906.
+Trial: 42
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 10:32:28,688] Trial 42 finished with value: -109.33000183105469 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9645516542832269, 'tau': 0.005912482954086702, 'lr': 0.00040449794054609736}. Best is trial 22 with value: -498.0899963378906.
+Trial: 43
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 10:39:48,630] Trial 43 finished with value: -464.5799865722656 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9635624329669995, 'tau': 0.0054353976821282955, 'lr': 0.00028347268718110596}. Best is trial 22 with value: -498.0899963378906.
+Trial: 44
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 10:40:29,829] Trial 44 finished with value: -9.289999961853027 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9775977449106719, 'tau': 0.004700823352121027, 'lr': 0.0002915305006326615}. Best is trial 22 with value: -498.0899963378906.
+Trial: 45
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 10:44:01,183] Trial 45 finished with value: -177.5 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9548378427536499, 'tau': 0.007441298047606279, 'lr': 0.0002086178769562963}. Best is trial 22 with value: -498.0899963378906.
+Trial: 46
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 10:44:42,702] Trial 46 finished with value: -9.399999618530273 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9265395923910748, 'tau': 0.005591681691509844, 'lr': 0.0006410006288851026}. Best is trial 22 with value: -498.0899963378906.
+Trial: 47
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 10:47:10,552] Trial 47 finished with value: -178.30999755859375 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9823938322887619, 'tau': 0.008237548029135143, 'lr': 0.00021325646252506105}. Best is trial 22 with value: -498.0899963378906.
+Trial: 48
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 10:49:46,659] Trial 48 finished with value: -145.69000244140625 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9593327490636214, 'tau': 0.00331604558867558, 'lr': 0.00013521035550301144}. Best is trial 22 with value: -498.0899963378906.
+Trial: 49
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 10:50:28,159] Trial 49 finished with value: -9.3100004196167 and parameters: {'batch_size_exponent': 6, 'gamma': 0.9374670111845818, 'tau': 0.005051030648520696, 'lr': 0.0004908257093895383}. Best is trial 22 with value: -498.0899963378906.
+Trial: 50
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02, bias=True
+[I 2025-01-27 10:54:08,189] Trial 50 finished with value: -298.0 and parameters: {'batch_size_exponent': 7, 'gamma': 0.9720708169931205, 'tau': 0.0023531430939538723, 'lr': 0.0002864417898814681}. Best is trial 22 with value: -498.0899963378906.
+Best parameters: {'batch_size_exponent': 7, 'gamma': 0.9891486539284453, 'tau': 0.0069514068850417545, 'lr': 0.000525166660957017}
+Best value: -498.0899963378906

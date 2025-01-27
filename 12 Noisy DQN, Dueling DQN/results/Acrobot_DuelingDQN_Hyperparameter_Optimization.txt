@@ -1,0 +1,44 @@
+(gym) C:\git\CAS_AI_Work\12 Noisy DQN, Dueling DQN>C:/Users/roger/anaconda3/envs/gym/python.exe "c:/git/CAS_AI_Work/12 Noisy DQN, Dueling DQN/Day 12 - Acrobot dulening_reinforcement_q_learning_HS_24 Roger.py"
+[I 2025-01-26 19:04:21,494] A new study created in RDB with name: Acrobot DuelingDQN Hyperparameter Optimization
+Trial: 0
+[I 2025-01-26 19:08:52,512] Trial 0 finished with value: 91.48999786376953 and parameters: {'batch_size_exponent': 7, 'eps_start': 0.83737444329185, 'eps_end': 0.06132550442053758, 'eps_decay': 1255, 'tau': 0.006475430937965026}. Best is trial 0 with value: 91.48999786376953.
+Trial: 1
+[I 2025-01-26 19:12:54,255] Trial 1 finished with value: 98.05000305175781 and parameters: {'batch_size_exponent': 7, 'eps_start': 0.987145694729841, 'eps_end': 0.09733063316792182, 'eps_decay': 1766, 'tau': 0.004841770859209159}. Best is trial 0 with value: 91.48999786376953.
+Trial: 2
+[I 2025-01-26 19:17:09,451] Trial 2 finished with value: 98.54000091552734 and parameters: {'batch_size_exponent': 7, 'eps_start': 0.9064871746318988, 'eps_end': 0.09978764907521893, 'eps_decay': 507, 'tau': 0.004598946851979828}. Best is trial 0 with value: 91.48999786376953.
+Trial: 3
+[I 2025-01-26 19:20:54,087] Trial 3 finished with value: 87.2300033569336 and parameters: {'batch_size_exponent': 7, 'eps_start': 0.996309291046025, 'eps_end': 0.06415663117315748, 'eps_decay': 1921, 'tau': 0.005465631685218705}. Best is trial 3 with value: 87.2300033569336.
+Trial: 4
+[I 2025-01-26 19:25:55,890] Trial 4 finished with value: 89.94000244140625 and parameters: {'batch_size_exponent': 7, 'eps_start': 0.8135419381611521, 'eps_end': 0.05966706855915996, 'eps_decay': 1920, 'tau': 0.0061659376351533065}. Best is trial 3 with value: 87.2300033569336.
+Trial: 5
+[I 2025-01-26 19:31:14,308] Trial 5 finished with value: 93.44000244140625 and parameters: {'batch_size_exponent': 8, 'eps_start': 0.8052264678311302, 'eps_end': 0.04709282488800549, 'eps_decay': 1248, 'tau': 0.002920065516181184}. Best is trial 3 with value: 87.2300033569336.
+Trial: 6
+[I 2025-01-26 19:36:17,264] Trial 6 finished with value: 91.48999786376953 and parameters: {'batch_size_exponent': 8, 'eps_start': 0.870387563332219, 'eps_end': 0.06106506742970691, 'eps_decay': 760, 'tau': 0.005887955760881552}. Best is trial 3 with value: 87.2300033569336.
+Trial: 7
+[I 2025-01-26 19:41:13,953] Trial 7 finished with value: 92.87000274658203 and parameters: {'batch_size_exponent': 8, 'eps_start': 0.9868465221364601, 'eps_end': 0.0961811632498336, 'eps_decay': 1829, 'tau': 0.0029223686287379374}. Best is trial 3 with value: 87.2300033569336.
+Trial: 8
+[I 2025-01-26 19:46:47,752] Trial 8 finished with value: 98.7300033569336 and parameters: {'batch_size_exponent': 7, 'eps_start': 0.9236999560611192, 'eps_end': 0.08776390972039663, 'eps_decay': 1140, 'tau': 0.0081143525438735}. Best is trial 3 with value: 87.2300033569336.
+Trial: 9
+[I 2025-01-26 19:50:59,942] Trial 9 finished with value: 86.91000366210938 and parameters: {'batch_size_exponent': 8, 'eps_start': 0.9596971407405877, 'eps_end': 0.025755358455925352, 'eps_decay': 726, 'tau': 0.008447181829567624}. Best is trial 9 with value: 86.91000366210938.
+Trial: 10
+[I 2025-01-26 19:55:50,719] Trial 10 finished with value: 90.61000061035156 and parameters: {'batch_size_exponent': 8, 'eps_start': 0.9405644369473892, 'eps_end': 0.0122551798013446, 'eps_decay': 884, 'tau': 0.009951620862614445}. Best is trial 9 with value: 86.91000366210938.
+Trial: 11
+[I 2025-01-26 20:00:22,481] Trial 11 finished with value: 98.63999938964844 and parameters: {'batch_size_exponent': 8, 'eps_start': 0.9624930255304258, 'eps_end': 0.030925791970463253, 'eps_decay': 1554, 'tau': 0.007876874432451355}. Best is trial 9 with value: 86.91000366210938.
+Trial: 12
+[I 2025-01-26 20:04:29,294] Trial 12 finished with value: 94.70999908447266 and parameters: {'batch_size_exponent': 8, 'eps_start': 0.9992297502550107, 'eps_end': 0.07727721435009248, 'eps_decay': 1508, 'tau': 0.009849947955561461}. Best is trial 9 with value: 86.91000366210938.
+Trial: 13
+[I 2025-01-26 20:09:03,877] Trial 13 finished with value: 93.20999908447266 and parameters: {'batch_size_exponent': 7, 'eps_start': 0.9541829105279549, 'eps_end': 0.040079400652921426, 'eps_decay': 944, 'tau': 0.007734105592351583}. Best is trial 9 with value: 86.91000366210938.
+Trial: 14
+[I 2025-01-26 20:12:30,590] Trial 14 finished with value: 87.16999816894531 and parameters: {'batch_size_exponent': 7, 'eps_start': 0.962577451277359, 'eps_end': 0.01949274411806918, 'eps_decay': 565, 'tau': 0.003866504007784043}. Best is trial 9 with value: 86.91000366210938.
+Trial: 15
+[I 2025-01-26 20:17:15,682] Trial 15 finished with value: 82.22000122070312 and parameters: {'batch_size_exponent': 8, 'eps_start': 0.8798264500084407, 'eps_end': 0.011453103467356255, 'eps_decay': 523, 'tau': 0.0013819621232334725}. Best is trial 15 with value: 82.22000122070312.
+Trial: 16
+[I 2025-01-26 20:21:45,867] Trial 16 finished with value: 86.26000213623047 and parameters: {'batch_size_exponent': 8, 'eps_start': 0.8737446308140063, 'eps_end': 0.026289460395439147, 'eps_decay': 701, 'tau': 0.001377615926782057}. Best is trial 15 with value: 82.22000122070312.
+Trial: 17
+[I 2025-01-26 20:26:25,107] Trial 17 finished with value: 83.45999908447266 and parameters: {'batch_size_exponent': 8, 'eps_start': 0.874420466654409, 'eps_end': 0.012810693232103175, 'eps_decay': 661, 'tau': 0.0011318984105321039}. Best is trial 15 with value: 82.22000122070312.
+Trial: 18
+[I 2025-01-26 20:30:48,792] Trial 18 finished with value: 86.31999969482422 and parameters: {'batch_size_exponent': 8, 'eps_start': 0.8690252822254713, 'eps_end': 0.012737557033600404, 'eps_decay': 995, 'tau': 0.0015710048125027638}. Best is trial 15 with value: 82.22000122070312.
+Trial: 19
+[I 2025-01-26 20:35:11,015] Trial 19 finished with value: 87.83999633789062 and parameters: {'batch_size_exponent': 8, 'eps_start': 0.844988890271117, 'eps_end': 0.03361580791015043, 'eps_decay': 588, 'tau': 0.0023806461395275624}. Best is trial 15 with value: 82.22000122070312.
+Best parameters: {'batch_size_exponent': 8, 'eps_start': 0.8798264500084407, 'eps_end': 0.011453103467356255, 'eps_decay': 523, 'tau': 0.0013819621232334725}
+Best value: 82.22000122070312

@@ -1,0 +1,14 @@
+Trial 0: Claude
+Trial 1: Experiment
+Trial 2: Experiment manuell getunet
+
+(gym) C:\git\CAS_AI_Work\12 Noisy DQN, Dueling DQN>C:/Users/roger/anaconda3/envs/gym/python.exe "c:/git/CAS_AI_Work/12 Noisy DQN, Dueling DQN/Day 12 - Acrobot dulening_reinforcement_q_learning_HS_24 Roger.py"
+[I 2025-01-26 21:06:52,350] A new study created in RDB with name: Acrobot DuelingDQN Hyperparameter Optimization - Claude
+Trial: 0
+[I 2025-01-26 21:12:25,751] Trial 0 finished with value: 85.33999633789062 and parameters: {'batch_size_exponent': 8, 'eps_start': 1.0, 'eps_end': 0.01, 'eps_decay': 2000, 'tau': 0.001}. Best is trial 0 with value: 85.33999633789062.
+Trial: 1
+[I 2025-01-26 21:17:42,113] Trial 1 finished with value: 93.38999938964844 and parameters: {'batch_size_exponent': 8, 'eps_start': 0.88, 'eps_end': 0.01, 'eps_decay': 523, 'tau': 0.001}. Best is trial 0 with value: 85.33999633789062.
+Trial: 2
+[I 2025-01-26 21:25:11,127] Trial 2 finished with value: 88.93000030517578 and parameters: {'batch_size_exponent': 8, 'eps_start': 1.0, 'eps_end': 0.01, 'eps_decay': 500, 'tau': 0.001}. Best is trial 0 with value: 85.33999633789062.
+Best parameters: {'batch_size_exponent': 8, 'eps_start': 1.0, 'eps_end': 0.01, 'eps_decay': 2000, 'tau': 0.001}
+Best value: 85.33999633789062

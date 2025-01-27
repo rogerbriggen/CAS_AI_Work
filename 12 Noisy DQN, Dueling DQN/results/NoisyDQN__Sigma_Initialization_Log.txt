@@ -1,0 +1,204 @@
+(gym) C:\git\CAS_AI_Work\12 Noisy DQN, Dueling DQN>C:/Users/roger/anaconda3/envs/gym/python.exe "c:/git/CAS_AI_Work/12 Noisy DQN, Dueling DQN/Day 12 - noisy_linear_reinforcement_q_learning_HS_24 - Roger.py"
+[I 2025-01-26 22:47:16,769] A new study created in RDB with name: NoisyDQN: Sigma Initialization Log
+Trial: 0
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.21609199835095613, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.21609199835095613, bias=True
+[I 2025-01-26 22:48:38,397] Trial 0 finished with value: -90.55000305175781 and parameters: {'sigma_init': 0.21609199835095613}. Best is trial 0 with value: -90.55000305175781.
+Trial: 1
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.05294921422013174, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.05294921422013174, bias=True
+[I 2025-01-26 22:51:59,929] Trial 1 finished with value: -407.1099853515625 and parameters: {'sigma_init': 0.05294921422013174}. Best is trial 1 with value: -407.1099853515625.
+Trial: 2
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.10458206179463794, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.10458206179463794, bias=True
+[I 2025-01-26 22:54:07,798] Trial 2 finished with value: -156.5 and parameters: {'sigma_init': 0.10458206179463794}. Best is trial 1 with value: -407.1099853515625.
+Trial: 3
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.013579239162166403, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.013579239162166403, bias=True
+[I 2025-01-26 22:55:08,567] Trial 3 finished with value: -85.86000061035156 and parameters: {'sigma_init': 0.013579239162166403}. Best is trial 1 with value: -407.1099853515625.
+Trial: 4
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.0299279753235016, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.0299279753235016, bias=True
+[I 2025-01-26 22:55:40,668] Trial 4 finished with value: -9.4399995803833 and parameters: {'sigma_init': 0.0299279753235016}. Best is trial 1 with value: -407.1099853515625.
+Trial: 5
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02608142678985503, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02608142678985503, bias=True
+[I 2025-01-26 22:56:17,627] Trial 5 finished with value: -9.4399995803833 and parameters: {'sigma_init': 0.02608142678985503}. Best is trial 1 with value: -407.1099853515625.
+Trial: 6
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.0614726084892685, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.0614726084892685, bias=True
+[I 2025-01-26 22:59:35,612] Trial 6 finished with value: -274.7300109863281 and parameters: {'sigma_init': 0.0614726084892685}. Best is trial 1 with value: -407.1099853515625.
+Trial: 7
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.408953919328293, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.408953919328293, bias=True
+[I 2025-01-26 23:00:26,549] Trial 7 finished with value: -29.68000030517578 and parameters: {'sigma_init': 0.408953919328293}. Best is trial 1 with value: -407.1099853515625.
+Trial: 8
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.012644181908379157, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.012644181908379157, bias=True
+[I 2025-01-26 23:00:59,951] Trial 8 finished with value: -9.359999656677246 and parameters: {'sigma_init': 0.012644181908379157}. Best is trial 1 with value: -407.1099853515625.
+Trial: 9
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.10942741016547537, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.10942741016547537, bias=True
+[I 2025-01-26 23:02:36,357] Trial 9 finished with value: -62.29999923706055 and parameters: {'sigma_init': 0.10942741016547537}. Best is trial 1 with value: -407.1099853515625.
+Trial: 10
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.04786939663567908, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.04786939663567908, bias=True
+[I 2025-01-26 23:03:45,407] Trial 10 finished with value: -112.73999786376953 and parameters: {'sigma_init': 0.04786939663567908}. Best is trial 1 with value: -407.1099853515625.
+Trial: 11
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.062088304850602516, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.062088304850602516, bias=True
+[I 2025-01-26 23:05:12,352] Trial 11 finished with value: -70.88999938964844 and parameters: {'sigma_init': 0.062088304850602516}. Best is trial 1 with value: -407.1099853515625.
+Trial: 12
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.1242509624861249, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.1242509624861249, bias=True
+[I 2025-01-26 23:06:50,436] Trial 12 finished with value: -107.72000122070312 and parameters: {'sigma_init': 0.1242509624861249}. Best is trial 1 with value: -407.1099853515625.
+Trial: 13
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.03549364167849773, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.03549364167849773, bias=True
+[I 2025-01-26 23:08:43,191] Trial 13 finished with value: -159.41000366210938 and parameters: {'sigma_init': 0.03549364167849773}. Best is trial 1 with value: -407.1099853515625.
+Trial: 14
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.07172991438295329, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.07172991438295329, bias=True
+[I 2025-01-26 23:10:35,012] Trial 14 finished with value: -135.0 and parameters: {'sigma_init': 0.07172991438295329}. Best is trial 1 with value: -407.1099853515625.
+Trial: 15
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.020485759567667402, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.020485759567667402, bias=True
+[I 2025-01-26 23:15:36,967] Trial 15 finished with value: -500.0 and parameters: {'sigma_init': 0.020485759567667402}. Best is trial 15 with value: -500.0.
+Trial: 16
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.019116368425408814, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.019116368425408814, bias=True
+[I 2025-01-26 23:16:45,430] Trial 16 finished with value: -103.27999877929688 and parameters: {'sigma_init': 0.019116368425408814}. Best is trial 15 with value: -500.0.
+Trial: 17
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.019389499099332085, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.019389499099332085, bias=True
+[I 2025-01-26 23:19:53,745] Trial 17 finished with value: -362.92999267578125 and parameters: {'sigma_init': 0.019389499099332085}. Best is trial 15 with value: -500.0.
+Trial: 18
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.03984147011759647, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.03984147011759647, bias=True
+[I 2025-01-26 23:21:25,877] Trial 18 finished with value: -112.69000244140625 and parameters: {'sigma_init': 0.03984147011759647}. Best is trial 15 with value: -500.0.
+Trial: 19
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.01040705193377033, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.01040705193377033, bias=True
+[I 2025-01-26 23:22:02,226] Trial 19 finished with value: -9.4399995803833 and parameters: {'sigma_init': 0.01040705193377033}. Best is trial 15 with value: -500.0.
+Trial: 20
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02070999561944263, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.02070999561944263, bias=True
+[I 2025-01-26 23:23:46,873] Trial 20 finished with value: -188.97999572753906 and parameters: {'sigma_init': 0.02070999561944263}. Best is trial 15 with value: -500.0.
+Trial: 21
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.018826821865702975, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.018826821865702975, bias=True
+[I 2025-01-26 23:24:46,446] Trial 21 finished with value: -70.52999877929688 and parameters: {'sigma_init': 0.018826821865702975}. Best is trial 15 with value: -500.0.
+Trial: 22
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.025383800012179242, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.025383800012179242, bias=True
+[I 2025-01-26 23:25:51,716] Trial 22 finished with value: -92.44999694824219 and parameters: {'sigma_init': 0.025383800012179242}. Best is trial 15 with value: -500.0.
+Trial: 23
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.015436387134215817, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.015436387134215817, bias=True
+[I 2025-01-26 23:27:01,831] Trial 23 finished with value: -107.9800033569336 and parameters: {'sigma_init': 0.015436387134215817}. Best is trial 15 with value: -500.0.
+Trial: 24
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.04337433764850644, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.04337433764850644, bias=True
+[I 2025-01-26 23:30:01,146] Trial 24 finished with value: -32.52000045776367 and parameters: {'sigma_init': 0.04337433764850644}. Best is trial 15 with value: -500.0.
+Trial: 25
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.14981577957138514, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.14981577957138514, bias=True
+[I 2025-01-26 23:31:32,929] Trial 25 finished with value: -175.6699981689453 and parameters: {'sigma_init': 0.14981577957138514}. Best is trial 15 with value: -500.0.
+Trial: 26
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.010571809350934656, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.010571809350934656, bias=True
+[I 2025-01-26 23:33:45,512] Trial 26 finished with value: -142.4499969482422 and parameters: {'sigma_init': 0.010571809350934656}. Best is trial 15 with value: -500.0.
+Trial: 27
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.08124595627186111, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.08124595627186111, bias=True
+[I 2025-01-26 23:35:47,281] Trial 27 finished with value: -130.99000549316406 and parameters: {'sigma_init': 0.08124595627186111}. Best is trial 15 with value: -500.0.
+Trial: 28
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.032175311478877096, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.032175311478877096, bias=True
+[I 2025-01-26 23:36:42,234] Trial 28 finished with value: -49.25 and parameters: {'sigma_init': 0.032175311478877096}. Best is trial 15 with value: -500.0.
+Trial: 29
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.19521320339971418, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.19521320339971418, bias=True
+[I 2025-01-26 23:38:06,179] Trial 29 finished with value: -103.22000122070312 and parameters: {'sigma_init': 0.19521320339971418}. Best is trial 15 with value: -500.0.
+Trial: 30
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.05152474616125493, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.05152474616125493, bias=True
+[I 2025-01-26 23:42:38,919] Trial 30 finished with value: -500.0 and parameters: {'sigma_init': 0.05152474616125493}. Best is trial 15 with value: -500.0.
+Trial: 31
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.05322983898862473, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.05322983898862473, bias=True
+[I 2025-01-26 23:47:39,311] Trial 31 finished with value: -448.1099853515625 and parameters: {'sigma_init': 0.05322983898862473}. Best is trial 15 with value: -500.0.
+Trial: 32
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.05191145770337018, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.05191145770337018, bias=True
+[I 2025-01-26 23:50:01,884] Trial 32 finished with value: -160.38999938964844 and parameters: {'sigma_init': 0.05191145770337018}. Best is trial 15 with value: -500.0.
+Trial: 33
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.08108546024156656, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.08108546024156656, bias=True
+[I 2025-01-26 23:52:00,994] Trial 33 finished with value: -12.869999885559082 and parameters: {'sigma_init': 0.08108546024156656}. Best is trial 15 with value: -500.0.
+Trial: 34
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.08796781586231972, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.08796781586231972, bias=True
+[I 2025-01-26 23:54:16,461] Trial 34 finished with value: -88.33999633789062 and parameters: {'sigma_init': 0.08796781586231972}. Best is trial 15 with value: -500.0.
+Trial: 35
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.05593037676787165, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.05593037676787165, bias=True
+[I 2025-01-26 23:56:28,187] Trial 35 finished with value: -107.7300033569336 and parameters: {'sigma_init': 0.05593037676787165}. Best is trial 15 with value: -500.0.
+Trial: 36
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.025842160426930588, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.025842160426930588, bias=True
+[I 2025-01-26 23:59:01,740] Trial 36 finished with value: -283.260009765625 and parameters: {'sigma_init': 0.025842160426930588}. Best is trial 15 with value: -500.0.
+Trial: 37
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.04037321417888452, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.04037321417888452, bias=True
+[I 2025-01-26 23:59:48,736] Trial 37 finished with value: -23.530000686645508 and parameters: {'sigma_init': 0.04037321417888452}. Best is trial 15 with value: -500.0.
+Trial: 38
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.029897390745246253, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.029897390745246253, bias=True
+[I 2025-01-27 00:04:43,854] Trial 38 finished with value: -500.0 and parameters: {'sigma_init': 0.029897390745246253}. Best is trial 15 with value: -500.0.
+Trial: 39
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.4110296229913811, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.4110296229913811, bias=True
+[I 2025-01-27 00:05:47,338] Trial 39 finished with value: -40.84000015258789 and parameters: {'sigma_init': 0.4110296229913811}. Best is trial 15 with value: -500.0.
+Trial: 40
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.030406493853736144, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.030406493853736144, bias=True
+[I 2025-01-27 00:07:23,440] Trial 40 finished with value: -22.25 and parameters: {'sigma_init': 0.030406493853736144}. Best is trial 15 with value: -500.0.
+Trial: 41
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.06651631979008764, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.06651631979008764, bias=True
+[I 2025-01-27 00:09:45,325] Trial 41 finished with value: -151.17999267578125 and parameters: {'sigma_init': 0.06651631979008764}. Best is trial 15 with value: -500.0.
+Trial: 42
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.023039305808657425, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.023039305808657425, bias=True
+[I 2025-01-27 00:10:25,913] Trial 42 finished with value: -9.239999771118164 and parameters: {'sigma_init': 0.023039305808657425}. Best is trial 15 with value: -500.0.
+Trial: 43
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.050010940377347136, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.050010940377347136, bias=True
+[I 2025-01-27 00:14:09,363] Trial 43 finished with value: -500.0 and parameters: {'sigma_init': 0.050010940377347136}. Best is trial 15 with value: -500.0.
+Trial: 44
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.03558773988761062, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.03558773988761062, bias=True
+[I 2025-01-27 00:14:49,813] Trial 44 finished with value: -9.170000076293945 and parameters: {'sigma_init': 0.03558773988761062}. Best is trial 15 with value: -500.0.
+Trial: 45
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.047687308713929136, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.047687308713929136, bias=True
+[I 2025-01-27 00:17:39,208] Trial 45 finished with value: -57.560001373291016 and parameters: {'sigma_init': 0.047687308713929136}. Best is trial 15 with value: -500.0.
+Trial: 46
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.053984146783730126, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.053984146783730126, bias=True
+[I 2025-01-27 00:20:11,150] Trial 46 finished with value: -158.63999938964844 and parameters: {'sigma_init': 0.053984146783730126}. Best is trial 15 with value: -500.0.
+Trial: 47
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.016220333468429854, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.016220333468429854, bias=True
+[I 2025-01-27 00:25:51,838] Trial 47 finished with value: -500.0 and parameters: {'sigma_init': 0.016220333468429854}. Best is trial 15 with value: -500.0.
+Trial: 48
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.014767464696952344, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.014767464696952344, bias=True
+[I 2025-01-27 00:28:04,340] Trial 48 finished with value: -133.52999877929688 and parameters: {'sigma_init': 0.014767464696952344}. Best is trial 15 with value: -500.0.
+Trial: 49
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.016083472839242913, bias=True
+NoisyLinear: in_features=512, out_features=2, sigma_init=0.016083472839242913, bias=True
+[I 2025-01-27 00:28:55,577] Trial 49 finished with value: -9.239999771118164 and parameters: {'sigma_init': 0.016083472839242913}. Best is trial 15 with value: -500.0.
+Best parameters: {'sigma_init': 0.020485759567667402}
+Best value: -500.0

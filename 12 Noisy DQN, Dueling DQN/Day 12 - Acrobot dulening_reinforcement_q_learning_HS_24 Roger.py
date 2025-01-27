@@ -577,6 +577,7 @@ def objective(trial):
     EPS_DECAY = trial.suggest_int("eps_decay", 500, 2000)
     TAU = trial.suggest_float("tau", 0.001, 0.01)
     LR = 1e-4
+
     
     
     if torch.cuda.is_available() or torch.backends.mps.is_available():
@@ -665,11 +666,36 @@ def objective(trial):
     return -np.mean([r.cpu().numpy() for r in rewards[-100:]])  # Return negative mean reward for last 100 episodes
 
 # Create and run study
-study_name = "Acrobot DuelingDQN Hyperparameter Optimization"
+study_name = "Acrobot DuelingDQN Hyperparameter Optimization - Claude"
 study_storage="sqlite:///acrobot_dueling_dqn.db"
-optuna.delete_study(study_name=study_name, storage=study_storage)
+#optuna.delete_study(study_name=study_name, storage=study_storage)
+
 study = optuna.create_study(direction="minimize", study_name=study_name, storage=study_storage, load_if_exists=True)
-study.optimize(objective, n_trials=20)
+
+# values from Claude
+#BATCH_SIZE = 256  # Increased for more stable learning
+#GAMMA = 0.99      # Keep as is - good for most cases
+#EPS_START = 1.0   # Start with full exploration
+#EPS_END = 0.01    # Lower end for better exploitation
+#EPS_DECAY = 2000  # Slower decay for better exploration
+#TAU = 0.001       # Slower target network updates
+#LR = 3e-4         # Slightly higher learning rate
+study.enqueue_trial(
+    {'batch_size_exponent': 8, 'eps_start': 1.0, 'eps_end': 0.01, 'eps_decay': 2000, 'tau': 0.001}
+)
+
+# Values from Optuna
+study.enqueue_trial(
+    {'batch_size_exponent': 8, 'eps_start': 0.88, 'eps_end': 0.01, 'eps_decay': 523, 'tau': 0.001}
+)
+
+# Values from Optuna - Manually tuning
+study.enqueue_trial(
+    {'batch_size_exponent': 8, 'eps_start': 1, 'eps_end': 0.01, 'eps_decay': 500, 'tau': 0.001}
+)
+
+
+study.optimize(objective, n_trials=3)
 
 # Print results
 print("Best parameters:", study.best_params)
