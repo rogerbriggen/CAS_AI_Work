@@ -38,13 +38,17 @@ Get started with your own first training loop
 
 import torch
 
-torch.manual_seed(0)
+#torch.manual_seed(0)
 
 import time
+import numpy as np
 
 from torchrl.envs import GymEnv, StepCounter, TransformedEnv
 
-env = TransformedEnv(GymEnv("CartPole-v1"), StepCounter())
+#game_name = "CartPole-v1"
+game_name = "Acrobot-v1"
+print(f"Game name: {game_name}")
+env = TransformedEnv(GymEnv(game_name), StepCounter())   
 env.set_seed(0)
 
 from tensordict.nn import TensorDictModule as Mod, TensorDictSequential as Seq
@@ -125,7 +129,8 @@ path = "./training_loop"
 logger = CSVLogger(exp_name="dqn", log_dir=path, video_format="mp4")
 video_recorder = VideoRecorder(logger, tag="video")
 record_env = TransformedEnv(
-    GymEnv("CartPole-v1", from_pixels=True, pixels_only=False), video_recorder
+    #GymEnv("CartPole-v1", from_pixels=True, pixels_only=False), video_recorder
+    GymEnv(game_name, from_pixels=True, pixels_only=False), video_recorder
 )
 
 #################################
@@ -144,7 +149,21 @@ t0 = time.time()
 for i, data in enumerate(collector):
     # Write data in replay buffer
     rb.extend(data)
-    max_length = rb[:]["next", "step_count"].max()
+    if game_name == "CartPole-v1":
+        max_length = rb[:]["next", "step_count"].max()
+    if game_name == "Acrobot-v1":
+        #max_length = rb[:]["next", "step_count"].min()
+        if 0 in rb[:]["next", "reward"]:
+            zero_reward_index = (rb[:]["next", "reward"] == 0).nonzero(as_tuple=True)[0]
+            print(f"Index of zero reward: {zero_reward_index}")
+            print(f"Found zero reward at {len(rb)}")
+        terminated_indices = (rb[:]["next", "terminated"] == True).nonzero(as_tuple=True)[0]
+        if len(terminated_indices) > 0:
+            max_length = rb[:]["next", "step_count"][terminated_indices[0]]
+        else:
+            max_length = 500
+        #min_length_done = rb[:]["next", "step_count"][rb[:]["next", "done"] == True].min()
+        #max_length = min_length_done # use the current naming
     if len(rb) > init_rand_steps:
         # Optim loop (we do several optim steps
         # per batch collected for efficiency)
@@ -162,7 +181,11 @@ for i, data in enumerate(collector):
                 torchrl_logger.info(f"Max num steps: {max_length}, rb length {len(rb)}")
             total_count += data.numel()
             total_episodes += data["next", "done"].sum()
-    if max_length > 200:
+    if game_name == "CartPole-v1" and max_length > 200:
+        break
+    if game_name == "Acrobot-v1" and max_length < 200:
+        #print(rb)
+        print(f"Solved after {total_count} steps, {total_episodes} episodes with max_length = {max_length}.")
         break
 
 t1 = time.time()
