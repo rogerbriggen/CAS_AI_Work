@@ -116,8 +116,8 @@ value_net = Mod(value_mlp, in_keys=["observation"], out_keys=["action_value"]).t
 policy = Seq(value_net, QValueModule(spec=env.action_spec)).to(device)
 if isinstance(value_mlp, DQN):
     eps_init = 0.9
-    eps_end = 0.05
-    annealing_num_steps = 100_000
+    eps_end = 0.01
+    annealing_num_steps = 1_000_000
 else:
     eps_init = 0.5
     eps_end = 0.1
