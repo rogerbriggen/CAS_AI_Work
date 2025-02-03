@@ -37,6 +37,9 @@ Get started with your own first training loop
 #
 
 import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as opt
 
 #torch.manual_seed(0)
 
@@ -75,11 +78,52 @@ from tensordict.nn import TensorDictModule as Mod, TensorDictSequential as Seq
 
 from torchrl.modules import EGreedyModule, MLP, QValueModule
 
-value_mlp = MLP(out_features=env.action_spec.shape[-1], num_cells=[64, 64], device=device)
+n_observations = env.reset()
+
+class DQN(nn.Module):
+
+    def __init__(self, n_observations, n_actions, linear_features=512, linear_features_out=512, advantage_features=512, value_features=512):
+        super(DQN, self).__init__()
+        self.layer1 = nn.Linear(n_observations, linear_features)
+        self.layer2 = nn.Linear(linear_features, linear_features_out)
+
+        self.fc_adv = nn.Sequential(
+            nn.Linear(linear_features_out, advantage_features),
+            nn.ReLU(),
+            nn.Linear(advantage_features, n_actions)
+        )
+        self.fc_val = nn.Sequential(
+            nn.Linear(linear_features_out, value_features),
+            nn.ReLU(),
+            nn.Linear(value_features, 1)
+        )
+
+    # Called with either one element to determine next action, or a batch
+    # during optimization. Returns tensor([[left0exp,right0exp]...]).
+    def forward(self, x):
+        x = F.relu(self.layer1(x))
+        x = F.relu(self.layer2(x))
+
+        val = self.fc_val(x)
+        adv = self.fc_adv(x)
+        return val + adv - adv.mean() # ist gleich Q Value
+if game_name == "CartPole-v1":    
+    value_mlp = MLP(out_features=env.action_spec.shape[-1], num_cells=[64, 64], device=device)
+elif game_name == "Acrobot-v1":
+    value_mlp = DQN(n_observations=env.observation_spec['observation'].shape[-1], n_actions=env.action_spec.shape[-1], linear_features=2**10, linear_features_out=2**7, advantage_features=2**9, value_features=2**7).to(device)
+
 value_net = Mod(value_mlp, in_keys=["observation"], out_keys=["action_value"]).to(device)
 policy = Seq(value_net, QValueModule(spec=env.action_spec)).to(device)
+if isinstance(value_mlp, DQN):
+    eps_init = 0.9
+    eps_end = 0.05
+    annealing_num_steps = 100_000
+else:
+    eps_init = 0.5
+    eps_end = 0.1
+    annealing_num_steps = 100_000
 exploration_module = EGreedyModule(
-    env.action_spec, annealing_num_steps=100_000, eps_init=0.5
+    env.action_spec, annealing_num_steps=100_000, eps_init=eps_init, eps_end=eps_end
 ).to(device)
 policy_explore = Seq(policy, exploration_module).to(device)
 
@@ -94,7 +138,8 @@ policy_explore = Seq(policy, exploration_module).to(device)
 #
 
 from torchrl.collectors import SyncDataCollector
-from torchrl.data import LazyTensorStorage, ReplayBuffer
+from torchrl.data import LazyTensorStorage, ReplayBuffer, TensorDictPrioritizedReplayBuffer
+
 
 init_rand_steps = 5000
 frames_per_batch = 100
@@ -107,7 +152,11 @@ collector = SyncDataCollector(
     init_random_frames=init_rand_steps,
     device=device
 )
-rb = ReplayBuffer(storage=LazyTensorStorage(100_000))
+
+if game_name == "CartPole-v1":
+    rb = ReplayBuffer(storage=LazyTensorStorage(100_000))
+elif game_name == "Acrobot-v1":
+    rb = TensorDictPrioritizedReplayBuffer(storage=LazyTensorStorage(100_000), alpha=0.7, beta=0.4, reduction=min) #, reduction=min because we want to minimize the amount of steps
 
 from torch.optim import Adam
 
@@ -121,8 +170,14 @@ from torch.optim import Adam
 from torchrl.objectives import DQNLoss, SoftUpdate
 
 loss = DQNLoss(value_network=policy, action_space=env.action_spec, delay_value=True)
-optim = Adam(loss.parameters(), lr=0.02)
+if game_name == "CartPole-v1":
+    optim = Adam(loss.parameters(), lr=0.02)
+elif game_name == "Acrobot-v1":
+    optim = Adam(loss.parameters(), lr=1e-4)
+    #optim = opt.AdamW(policy.parameters(), lr=1e-4, amsgrad=True)   
+
 updater = SoftUpdate(loss, eps=0.99)
+
 
 #################################
 # Logger
@@ -155,7 +210,10 @@ record_env = TransformedEnv(
 total_count = 0
 total_episodes = 0
 t0 = time.time()
-last_indice = -1
+
+if game_name == "Acrobot-v1":
+    last_indice = -1
+    max_length = 500
 for i, data in enumerate(collector):
     # Write data in replay buffer
     rb.extend(data)
@@ -165,7 +223,7 @@ for i, data in enumerate(collector):
         # We can either count reward = 0 (then we finished the game successfully) or check for terminated = True which also means success
         if 0 in rb[:]["next", "reward"]: # Check if we have a zero reward
             zero_reward_index = (rb[:]["next", "reward"] == 0).nonzero(as_tuple=True)[0]
-            print(f"Index of zero reward: {zero_reward_index}")
+            #print(f"Index of zero reward: {zero_reward_index}")
         terminated_indices = (rb[:]["next", "terminated"] == True).nonzero(as_tuple=True)[0] # Check if we have a terminated episode
         if len(terminated_indices) > 0 and terminated_indices[-1] > last_indice:
             # We have a new terminated episode
@@ -175,13 +233,14 @@ for i, data in enumerate(collector):
             max_length = rb[:]["next", "step_count"][terminated_indices].min()
             print(f'last length: {rb[:]["next", "step_count"][terminated_indices[-1]]}')
             print(f"Min length: {max_length}")
-        else:
-            max_length = 500 # We have not yet finished the game
     if len(rb) > init_rand_steps:
         # Optim loop (we do several optim steps
         # per batch collected for efficiency)
         for _ in range(optim_steps):
-            sample = rb.sample(128).to(device)
+            if game_name == "CartPole-v1":
+                sample = rb.sample(128).to(device)
+            elif game_name == "Acrobot-v1":
+                sample = rb.sample(64).to(device)
             loss_vals = loss(sample)
             loss_vals["loss"].backward()
             optim.step()
@@ -190,13 +249,13 @@ for i, data in enumerate(collector):
             exploration_module.step(data.numel())
             # Update target params
             updater.step()
-            if i % 10 == 0:
+            if i % 100 == 0:
                 torchrl_logger.info(f"Max num steps: {max_length}, rb length {len(rb)}  i={i}, loss={loss_vals['loss'].item()} exploration={exploration_module.eps}")
             total_count += data.numel()
             total_episodes += data["next", "done"].sum()
     if game_name == "CartPole-v1" and max_length > 200:
         break
-    if game_name == "Acrobot-v1" and max_length < 200:
+    if game_name == "Acrobot-v1" and max_length < 100 and len(terminated_indices) > 100:
         #print(rb)
         print(f"Solved after {total_count} steps, {total_episodes} episodes with max_length = {max_length}.")
         break
