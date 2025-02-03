@@ -1,0 +1,3 @@
+Default MLP, Goal > 500
+2025-02-03 11:50:54,390 [torchrl][INFO] Max num steps: 136, rb length 8100  i=80, loss=0.10160622000694275 exploration=tensor([0.3762], device='cuda:0')
+2025-02-03 11:50:54,868 [torchrl][INFO] solved after 33000 steps, 1090 episodes and in 11.124980926513672s.
