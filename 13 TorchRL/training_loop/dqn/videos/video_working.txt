@@ -1,0 +1,3 @@
+Default MLP, Goal < 200
+Solved after 7000 steps, 20 episodes with max_length = 181.
+2025-02-03 11:45:37,931 [torchrl][INFO] solved after 7000 steps, 20 episodes and in 4.586760997772217s.
