@@ -36,6 +36,8 @@ Get started with your own first training loop
 # :ref:`the environment tutorial <gs_env_ted>`.
 #
 
+import os
+import sys
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -197,6 +199,35 @@ record_env = TransformedEnv(
     GymEnv(game_name, from_pixels=True, pixels_only=False).to(device), video_recorder
 ).to(device)
 
+
+#################################
+# Inference (before training loop for faster iterations)
+# -------------
+def my_inference_callback(env, tensor_dict):
+    # Example: Print the current step and reward
+    print(f"Callback:\n  env: {env} \n  tensor_dict: {tensor_dict}")
+    # You can add more custom logic here
+
+def inference(policy, load_model=True):
+    from tensordict.tensordict import TensorDict
+
+    # ----- Inference -----
+    if load_model:
+        # If you want to run inference in a new session, reload the model state like:
+        model_save_path = os.path.join("./training_loop", "policy_model.pt")
+        policy.load_state_dict(torch.load(model_save_path))
+    else:
+        # Set the policy to evaluation mode and load the saved parameters.
+        policy.eval()
+
+    trajectory = env.rollout(max_steps=1000, policy=policy, callback=my_inference_callback)
+    
+    torchrl_logger.info(f"Inference rollout reward: {trajectory['step_count'][-1]}")
+
+# Uncomment the following line to run just inference
+#inference(policy=policy)
+#sys.exit(0)
+
 #################################
 # Training loop
 # -------------
@@ -255,7 +286,7 @@ for i, data in enumerate(collector):
             total_episodes += data["next", "done"].sum()
     if game_name == "CartPole-v1" and max_length > 200:
         break
-    if game_name == "Acrobot-v1" and max_length < 100 and len(terminated_indices) > 100:
+    if game_name == "Acrobot-v1" and max_length < 100 and len(terminated_indices) > 500:
         #print(rb)
         print(f"Solved after {total_count} steps, {total_episodes} episodes with max_length = {max_length}.")
         break
@@ -269,6 +300,13 @@ torchrl_logger.info(
     f"solved after {total_count} steps, {total_episodes} episodes and in {t1-t0}s."
 )
 
+
+# ----- Save the trained model -----
+model_save_path = os.path.join("./training_loop", "policy_model.pt")
+torch.save(policy.state_dict(), model_save_path)
+torchrl_logger.info(f"Model saved to {model_save_path}")
+
+
 #################################
 # Rendering
 # ---------
@@ -276,16 +314,7 @@ torchrl_logger.info(
 # Finally, we run the environment for as many steps as we can and save the
 # video locally (notice that we are not exploring).
 
-record_env.rollout(max_steps=1000, policy=policy)
+trajectory = record_env.rollout(max_steps=1000, policy=policy)
 video_recorder.dump()
-
-#################################
-#
-# This is what your rendered CartPole video will look like after a full
-# training loop:
-#
-# .. figure:: /_static/img/cartpole.gif
-#
-# This concludes our series of "Getting started with TorchRL" tutorials!
-# Feel free to share feedback about it on GitHub.
-#
+# print the results
+print(f"Inference trajectory: {trajectory}")
