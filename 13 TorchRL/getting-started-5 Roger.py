@@ -222,7 +222,7 @@ def inference(policy, load_model=True):
 
     trajectory = env.rollout(max_steps=1000, policy=policy, callback=my_inference_callback)
     
-    torchrl_logger.info(f"Inference rollout reward: {trajectory['step_count'][-1]}")
+    torchrl_logger.info(f"Inference rollout step count: {trajectory['step_count'][-1]}")
 
 # Uncomment the following line to run just inference
 #inference(policy=policy)
