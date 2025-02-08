@@ -56,3 +56,19 @@ pip install --force-reinstall -v "numpy==1.26.4"
 ### Environment variables
 
 No environment variables needed
+
+## Run
+
+- Change to your local copy of the excercise
+- Change to Chapter11
+- Just run the different python files
+
+## See results in tensorboard
+
+````shell
+# - Make sure you are in the correct conda env
+# - Make sure you are in the Deep-Reinforcement-Learning-Hands-On-Third-Edition root directory
+tensorboard --logdir=runs
+````
+
+Open webbrowser at <http://localhost:6006/> (or check the output of the tensorboard start)
