@@ -1,7 +1,11 @@
-# We now use Deep Reinforcment Learning - Hands-On, 3rd Edition, Lapan
+# Day 14 - Policy Gradient Networks (PGN)
+
+We now use the book Deep Reinforcment Learning - Hands-On, 3rd Edition, 2024, Lapan
 
 see <https://leanpub.com/deepreinforcementlearninghands-on-thirdedition>
 see <https://github.com/PacktPublishing/Deep-Reinforcement-Learning-Hands-On-Third-Edition>, Chapter 11
+
+My own copy with some changes of the excercises code is here: <https://github.com/rogerbriggen/Deep-Reinforcement-Learning-Hands-On-Third-Edition>
 
 ## Environment
 
