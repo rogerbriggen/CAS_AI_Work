@@ -15,7 +15,9 @@ pip install torch==2.5.0 torchvision==0.20.0 torchaudio==2.5.0 --index-url https
 pip install -r requirements.txt  # the requirements file is from https://github.com/rogerbriggen/Deep-Reinforcement-Learning-Hands-On-Third-Edition/blob/main/requirements.txt
 ````
 
-Use <https://github.com/rogerbriggen/Deep-Reinforcement-Learning-Hands-On-Third-Edition> for the code.
+Use <https://github.com/rogerbriggen/Deep-Reinforcement-Learning-Hands-On-Third-Edition/tree/main/Chapter11> for the code.
+
+<https://github.com/rogerbriggen/Deep-Reinforcement-Learning-Hands-On-Third-Edition/blob/main/Chapter11/05_pong_pg_tune.py> does not work because of dependencies to tune... we would need to find the correct old version of tune... yay, dependency management in pyhton really sucks.
 
 The conda environment is named lapan.
 
