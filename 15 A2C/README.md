@@ -91,8 +91,16 @@ Unfortunately I cannot upload the runs and database since each run generates 1 G
 
 There was always the problem, that after a very good start the rewards dropped dramatically. With hyper parameter optimiziation and added clipping of the gradients and longer running training this problem was solved.
 
+see some charts in
 
-
+- [./1 pg_2000%20episodes/](./1%20pg_2000%20episodes/)
+- [./2 pg_4000%20episodes/](./2%20pg_4000%20episodes/)
+- [./3 pg_100000%20episodes/](./3%20pg_100000%20episodes/)
 
 ### LunarLander A2C
 
+Here the problem was, that the shared net is not helpful in learning and also, that a deep neural network is needed to accomplish the goal.
+
+see some charts in
+
+- [./4 a2c 2000 episodes, variable_env_amount/](./4%20a2c%202000%20episodes,%20variable_env_amount/)
