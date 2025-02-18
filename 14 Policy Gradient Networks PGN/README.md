@@ -72,3 +72,9 @@ tensorboard --logdir=runs
 ````
 
 Open webbrowser at <http://localhost:6006/> (or check the output of the tensorboard start)
+
+## Start the optuna dashboard
+
+````shell
+optuna-dashboard sqlite:///11_04_lunarlander_pg.db
+````
