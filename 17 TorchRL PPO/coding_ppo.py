@@ -153,6 +153,8 @@ from torchrl.envs import (
 )
 from torchrl.envs.libs.gym import GymEnv
 from torchrl.envs.utils import check_env_specs, ExplorationType, set_exploration_type
+from torchrl._utils import logger as torchrl_logger
+from torchrl.record import CSVLogger, VideoRecorder
 from torchrl.modules import ProbabilisticActor, TanhNormal, ValueOperator
 from torchrl.objectives import ClipPPOLoss
 from torchrl.objectives.value import GAE
@@ -230,7 +232,23 @@ entropy_eps = 1e-4
 # with another. For example, creating a wrapped gym environment can be achieved with few characters:
 #
 
-base_env = GymEnv("InvertedDoublePendulum-v4", device=device)
+game_name = "InvertedDoublePendulum-v4"
+base_env = GymEnv(game_name, device=device)
+
+path = "./training_loop"
+logger = CSVLogger(exp_name="ppo", log_dir=path, video_format="mp4")
+video_recorder = VideoRecorder(logger, tag="video")
+record_env = TransformedEnv(
+    #GymEnv("CartPole-v1", from_pixels=True, pixels_only=False), video_recorder
+    GymEnv(game_name, from_pixels=True, pixels_only=False).to(device), 
+    Compose(
+        # normalize observations
+        ObservationNorm(in_keys=["observation"]),
+        DoubleToFloat(),
+        StepCounter(),
+        video_recorder
+    )
+).to(device)
 
 ######################################################################
 # There are a few things to notice in this code: first, we created
@@ -293,6 +311,7 @@ env = TransformedEnv(
         StepCounter(),
     ),
 )
+
 
 ######################################################################
 # As you may have noticed, we have created a normalization layer but we did not
@@ -677,28 +696,6 @@ for i, tensordict_data in enumerate(collector):
     # this is a nice-to-have but nothing necessary for PPO to work.
     scheduler.step()
 
-######################################################################
-# Results
-# -------
-#
-# Before the 1M step cap is reached, the algorithm should have reached a max
-# step count of 1000 steps, which is the maximum number of steps before the
-# trajectory is truncated.
-#
-plt.figure(figsize=(10, 10))
-plt.subplot(2, 2, 1)
-plt.plot(logs["reward"])
-plt.title("training rewards (average)")
-plt.subplot(2, 2, 2)
-plt.plot(logs["step_count"])
-plt.title("Max step count (training)")
-plt.subplot(2, 2, 3)
-plt.plot(logs["eval reward (sum)"])
-plt.title("Return (test)")
-plt.subplot(2, 2, 4)
-plt.plot(logs["eval step_count"])
-plt.title("Max step count (test)")
-plt.show()
 
 ######################################################################
 # Conclusion and next steps
@@ -721,3 +718,50 @@ plt.show()
 #   inverted pendulum in action. Check :py:mod:`torchrl.record` to
 #   know more.
 #
+# ----- Save the trained model -----
+model_save_path = os.path.join("./training_loop", "ppo_policy_model.pt")
+torch.save(policy_module.state_dict(), model_save_path)
+torchrl_logger.info(f"Model saved to {model_save_path}")
+
+
+#################################
+# Rendering
+# ---------
+#
+# Finally, we run the environment for as many steps as we can and save the
+# video locally (notice that we are not exploring).
+policy_module.eval()
+######################################################################
+# As you may have noticed, we have created a normalization layer but we did not
+# set its normalization parameters. To do this, :class:`~torchrl.envs.transforms.ObservationNorm` can
+# automatically gather the summary statistics of our environment:
+#
+record_env.transform[0].init_stats(num_iter=1000, reduce_dim=0, cat_dim=0)
+trajectory = record_env.rollout(max_steps=1000, policy=policy_module)
+video_recorder.dump()
+# print the results
+print(f"Inference trajectory: {trajectory}")
+
+
+######################################################################
+# Results
+# -------
+#
+# Before the 1M step cap is reached, the algorithm should have reached a max
+# step count of 1000 steps, which is the maximum number of steps before the
+# trajectory is truncated.
+#
+plt.figure(figsize=(10, 10))
+plt.subplot(2, 2, 1)
+plt.plot(logs["reward"])
+plt.title("training rewards (average)")
+plt.subplot(2, 2, 2)
+plt.plot(logs["step_count"])
+plt.title("Max step count (training)")
+plt.subplot(2, 2, 3)
+plt.plot(logs["eval reward (sum)"])
+plt.title("Return (test)")
+plt.subplot(2, 2, 4)
+plt.plot(logs["eval step_count"])
+plt.title("Max step count (test)")
+plt.show()
