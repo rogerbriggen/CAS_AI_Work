@@ -1,9 +1,6 @@
 """
 Reinforcement Learning (PPO) with TorchRL Tutorial
 ==================================================
-
-https://gymnasium.farama.org/environments/mujoco/inverted_double_pendulum/
-
 **Author**: `Vincent Moens <https://github.com/vmoens>`_
 
 .. _coding_ppo:
@@ -199,8 +196,8 @@ max_grad_norm = 1.0
 #
 frames_per_batch = 1000
 # For a complete training, bring the number of frames up to 1M
-#total_frames = 10_000
 total_frames = 1_000_000
+#total_frames = 1_000_000
 
 ######################################################################
 # PPO parameters
@@ -236,11 +233,13 @@ entropy_eps = 1e-4
 # with another. For example, creating a wrapped gym environment can be achieved with few characters:
 #
 
-game_name = "InvertedDoublePendulum-v4"
+#game_name = "InvertedDoublePendulum-v4"
+game_name = "LunarLanderContinuous-v2"
 base_env = GymEnv(game_name, device=device)
 
+
 path = "./training_loop"
-logger = CSVLogger(exp_name="ppo", log_dir=path, video_format="mp4")
+logger = CSVLogger(exp_name="ppo_lunar", log_dir=path, video_format="mp4")
 video_recorder = VideoRecorder(logger, tag="video")
 record_env = TransformedEnv(
     #GymEnv("CartPole-v1", from_pixels=True, pixels_only=False), video_recorder
@@ -723,7 +722,7 @@ for i, tensordict_data in enumerate(collector):
 #   know more.
 #
 # ----- Save the trained model -----
-model_save_path = os.path.join("./training_loop", "ppo_policy_model.pt")
+model_save_path = os.path.join("./training_loop", "ppo_lunar_policy_model.pt")
 torch.save(policy_module.state_dict(), model_save_path)
 torchrl_logger.info(f"Model saved to {model_save_path}")
 
