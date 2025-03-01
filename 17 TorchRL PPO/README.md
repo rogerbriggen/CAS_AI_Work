@@ -38,8 +38,12 @@ pip install --force-reinstall -v "numpy==1.26.4"
 
 No environment variables needed
 
-## Start the optuna dashboard
+## See results in tensorboard
 
 ````shell
-optuna-dashboard sqlite:///noisy_dqn2.db
+# - Make sure you are in the correct conda env
+# - Make sure you are in root directory
+tensorboard --logdir=runs
 ````
+
+Open webbrowser at <http://localhost:6006/> (or check the output of the tensorboard start)

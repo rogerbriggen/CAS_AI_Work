@@ -107,9 +107,11 @@ We will cover six crucial components of TorchRL:
 
 # sphinx_gallery_start_ignore
 import os
+import sys
 import warnings
 
 warnings.filterwarnings("ignore")
+import numpy as np
 from torch import multiprocessing
 
 # TorchRL prefers spawn method, that restricts creation of  ``~torchrl.envs.ParallelEnv`` inside
@@ -159,6 +161,7 @@ from torchrl.modules import ProbabilisticActor, TanhNormal, ValueOperator
 from torchrl.objectives import ClipPPOLoss
 from torchrl.objectives.value import GAE
 from tqdm import tqdm
+from torch.utils.tensorboard.writer import SummaryWriter
 
 ######################################################################
 # Define Hyperparameters
@@ -196,8 +199,8 @@ max_grad_norm = 1.0
 #
 frames_per_batch = 1000
 # For a complete training, bring the number of frames up to 1M
+#total_frames = 10_000
 total_frames = 1_000_000
-#total_frames = 1_000_000
 
 ######################################################################
 # PPO parameters
@@ -634,9 +637,42 @@ scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
 logs = defaultdict(list)
 pbar = tqdm(total=total_frames)
 eval_str = ""
+best_model = None
+writer = SummaryWriter(comment="-ppo_lunarlander")
+
+numpy_seed = np.random.get_state()[1][0]
+
+# Retrieve CUDA seed (same as PyTorch seed if manual_seed is used)
+if torch.cuda.is_available():
+    pytorch_seed = torch.cuda.initial_seed()
+else:
+    # Retrieve PyTorch (CPU) seed
+    pytorch_seed = torch.initial_seed()
+# Log the seeds as text
+writer.add_text('Random Seeds',
+                f'PyTorch Seed: {pytorch_seed}\n'
+                f'NumPy Seed: {numpy_seed}\n')
+                
+# Log hyperparameters
+hyperparams = {
+    "num_cells": num_cells,
+    "lr": lr,
+    "max_grad_norm": max_grad_norm,
+    "frames_per_batch": frames_per_batch,
+    "total_frames": total_frames,
+    "sub_batch_size": sub_batch_size,
+    "num_epochs": num_epochs,
+    "clip_epsilon": clip_epsilon,
+    "gamma": gamma,
+    "lmbda": lmbda,
+    "entropy_eps": entropy_eps,
+}
+for key, value in hyperparams.items():
+    writer.add_text(f"Hyperparameters/{key}", str(value))
 
 # We iterate over the collector until it reaches the total number of frames it was
 # designed to collect:
+step_idx = 0
 for i, tensordict_data in enumerate(collector):
     # we now have a batch of data to work with. Let's learn something from it.
     for _ in range(num_epochs):
@@ -647,6 +683,7 @@ for i, tensordict_data in enumerate(collector):
         data_view = tensordict_data.reshape(-1)
         replay_buffer.extend(data_view.cpu())
         for _ in range(frames_per_batch // sub_batch_size):
+            step_idx += 1
             subdata = replay_buffer.sample(sub_batch_size)
             loss_vals = loss_module(subdata.to(device))
             loss_value = (
@@ -654,7 +691,9 @@ for i, tensordict_data in enumerate(collector):
                 + loss_vals["loss_critic"]
                 + loss_vals["loss_entropy"]
             )
-
+            writer.add_scalar("loss_objective", loss_vals["loss_objective"], step_idx)
+            writer.add_scalar("loss_critic", loss_vals["loss_critic"], step_idx)
+            writer.add_scalar("loss_entropy", loss_vals["loss_entropy"], step_idx)
             # Optimization: backward, grad clipping and optimization step
             loss_value.backward()
             # this is not strictly mandatory but it's good practice to keep
@@ -663,13 +702,16 @@ for i, tensordict_data in enumerate(collector):
             optim.step()
             optim.zero_grad()
 
+    writer.add_scalar("reward", tensordict_data["next", "reward"].mean().item(), step_idx)
     logs["reward"].append(tensordict_data["next", "reward"].mean().item())
     pbar.update(tensordict_data.numel())
     cum_reward_str = (
         f"average reward={logs['reward'][-1]: 4.4f} (init={logs['reward'][0]: 4.4f})"
     )
+    writer.add_scalar("step_count", tensordict_data["step_count"].max().item(), step_idx)
     logs["step_count"].append(tensordict_data["step_count"].max().item())
     stepcount_str = f"step count (max): {logs['step_count'][-1]}"
+    writer.add_scalar("lr", optim.param_groups[0]["lr"], step_idx)
     logs["lr"].append(optim.param_groups[0]["lr"])
     lr_str = f"lr policy: {logs['lr'][-1]: 4.4f}"
     if i % 10 == 0:
@@ -682,10 +724,20 @@ for i, tensordict_data in enumerate(collector):
         with set_exploration_type(ExplorationType.DETERMINISTIC), torch.no_grad():
             # execute a rollout with the trained policy
             eval_rollout = env.rollout(1000, policy_module)
+            writer.add_scalar("eval reward", eval_rollout["next", "reward"].mean().item(), step_idx)
             logs["eval reward"].append(eval_rollout["next", "reward"].mean().item())
+            # Track the highest eval reward and save the model if we have a new high
+            if len(logs["eval reward (sum)"]) == 0 or eval_rollout["next", "reward"].sum().item() > max(logs["eval reward (sum)"]):
+                best_value = eval_rollout["next", "reward"].sum().item()
+                model_save_path = os.path.join("./training_loop", f"ppo_lunar_policy_model_best_{best_value}.pt")
+                torch.save(policy_module.state_dict(), model_save_path)
+                torchrl_logger.info(f"New high eval reward! Model saved to {model_save_path}")
+                best_model = model_save_path
+            writer.add_scalar("eval reward (sum)", eval_rollout["next", "reward"].sum().item(), step_idx)
             logs["eval reward (sum)"].append(
                 eval_rollout["next", "reward"].sum().item()
             )
+            writer.add_scalar("eval step_count", eval_rollout["step_count"].max().item(), step_idx)
             logs["eval step_count"].append(eval_rollout["step_count"].max().item())
             eval_str = (
                 f"eval cumulative reward: {logs['eval reward (sum)'][-1]: 4.4f} "
@@ -698,7 +750,7 @@ for i, tensordict_data in enumerate(collector):
     # We're also using a learning rate scheduler. Like the gradient clipping,
     # this is a nice-to-have but nothing necessary for PPO to work.
     scheduler.step()
-
+writer.close()
 
 ######################################################################
 # Conclusion and next steps
@@ -733,6 +785,9 @@ torchrl_logger.info(f"Model saved to {model_save_path}")
 #
 # Finally, we run the environment for as many steps as we can and save the
 # video locally (notice that we are not exploring).
+
+# Load the best model
+policy_module.load_state_dict(torch.load(best_model))
 policy_module.eval()
 ######################################################################
 # As you may have noticed, we have created a normalization layer but we did not
