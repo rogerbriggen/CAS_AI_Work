@@ -217,7 +217,7 @@ total_frames = 2_000_000  # increased from 1_000_000
 sub_batch_size = 128  # increased proportionally with larger batch  # cardinality of the sub-samples gathered from the current data in the inner loop
 num_epochs = 15       # increased epochs for more thorough learning on each batch  # optimization steps per batch of data collected
 clip_epsilon = (
-    0.1 clip_epsilon = 0.1    # tighter clipping to constrain policy updates  # clip value for PPO loss: see the equation in the intro for more context.
+    0.1    # tighter clipping to constrain policy updates  # clip value for PPO loss: see the equation in the intro for more context.
 )
 gamma = 0.99
 lmbda = 0.95
