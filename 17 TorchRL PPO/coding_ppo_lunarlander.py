@@ -238,7 +238,15 @@ entropy_eps = 1e-4
 
 #game_name = "InvertedDoublePendulum-v4"
 game_name = "LunarLanderContinuous-v2"
-base_env = GymEnv(game_name, device=device)
+extra = {}
+
+# Set if you want to train with continuous actions
+#extra['continuous'] = True
+# Set if you want to train with wind... it makes the training harder
+extra['enable_wind'] = True     # default False
+extra['wind_power'] = 15.0     # default 15.0
+extra['turbulence_power'] = 1.5 # default 1.5
+base_env = GymEnv(game_name, device=device, **extra)
 
 
 path = "./training_loop"
@@ -246,7 +254,7 @@ logger = CSVLogger(exp_name="ppo_lunar", log_dir=path, video_format="mp4")
 video_recorder = VideoRecorder(logger, tag="video")
 record_env = TransformedEnv(
     #GymEnv("CartPole-v1", from_pixels=True, pixels_only=False), video_recorder
-    GymEnv(game_name, from_pixels=True, pixels_only=False).to(device), 
+    GymEnv(game_name, from_pixels=True, pixels_only=False, device=device, **extra), 
     Compose(
         # normalize observations
         ObservationNorm(in_keys=["observation"]),
@@ -420,11 +428,11 @@ print("Shape of the rollout TensorDict:", rollout.batch_size)
 #
 
 actor_net = nn.Sequential(
-    nn.LazyLinear(num_cells, device=device),
+    nn.LazyLinear(512, device=device), # num_cells
     nn.Tanh(),
-    nn.LazyLinear(num_cells, device=device),
+    nn.LazyLinear(256, device=device), # num_cells
     nn.Tanh(),
-    nn.LazyLinear(num_cells, device=device),
+    nn.LazyLinear(64, device=device), # num_cells
     nn.Tanh(),
     nn.LazyLinear(2 * env.action_spec.shape[-1], device=device),
     NormalParamExtractor(),
@@ -482,11 +490,11 @@ policy_module = ProbabilisticActor(
 # parameters.
 #
 value_net = nn.Sequential(
-    nn.LazyLinear(num_cells, device=device),
+    nn.LazyLinear(512, device=device), # num_cells
     nn.Tanh(),
-    nn.LazyLinear(num_cells, device=device),
+    nn.LazyLinear(256, device=device), # num_cells
     nn.Tanh(),
-    nn.LazyLinear(num_cells, device=device),
+    nn.LazyLinear(64, device=device), # num_cells
     nn.Tanh(),
     nn.LazyLinear(1, device=device),
 )
@@ -638,7 +646,7 @@ logs = defaultdict(list)
 pbar = tqdm(total=total_frames)
 eval_str = ""
 best_model = None
-writer = SummaryWriter(comment="-ppo_lunarlander")
+writer = SummaryWriter(comment="-ppo_lunarlander_512_wind")
 
 numpy_seed = np.random.get_state()[1][0]
 
