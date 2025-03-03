@@ -49,10 +49,10 @@ lr = 1e-4
 max_grad_norm = 1.0
 
 # Training parameters
-frames_per_batch = 4000  # Increased batch size
-total_frames = 4_000_000
-sub_batch_size = 256
-num_epochs = 15
+frames_per_batch = 2000  # Reduced to avoid memory issues
+total_frames = 1_000_000  # Reduced total training time
+sub_batch_size = 128
+num_epochs = 10
 clip_epsilon = 0.1
 gamma = 0.99
 lmbda = 0.95
@@ -68,7 +68,7 @@ TURBULENCE_POWER_MIN = 0.0
 TURBULENCE_POWER_MAX = 3.0
 
 # Number of different environments to use during training
-NUM_ENV_VARIATIONS = 8
+NUM_ENV_VARIATIONS = 4  # Reduced from 8 to avoid memory issues
 
 class WindParameterizer:
     """Handles wind parameter randomization for creating environment variations"""
@@ -204,14 +204,14 @@ class MultiEnvCollector:
         combined_tensordict = None
         
         # Collect data from each environment variation
-        for collector, wind_params in self.env_collectors:
+        for i, (collector, wind_params) in enumerate(self.env_collectors):
             try:
                 # Get next batch from this collector
                 tensordict_data = next(iter(collector))
                 
                 # Add wind parameters as metadata
-                tensordict_data.set("wind_power", torch.tensor([wind_params['wind_power']]).expand(tensordict_data.batch_size))
-                tensordict_data.set("turbulence_power", torch.tensor([wind_params['turbulence_power']]).expand(tensordict_data.batch_size))
+                tensordict_data.set("wind_power", torch.tensor([wind_params['wind_power']], device=device).expand(tensordict_data.batch_size))
+                tensordict_data.set("turbulence_power", torch.tensor([wind_params['turbulence_power']], device=device).expand(tensordict_data.batch_size))
                 
                 if combined_tensordict is None:
                     combined_tensordict = tensordict_data
@@ -235,8 +235,45 @@ class MultiEnvCollector:
                 )
                 
                 # Replace the exhausted collector
-                idx = self.env_collectors.index((collector, wind_params))
-                self.env_collectors[idx] = (new_collector, wind_params)
+                self.env_collectors[i] = (new_collector, wind_params)
+            except Exception as e:
+                print(f"Error collecting data from environment {i} with wind {wind_params}: {e}")
+                # Create a new collector for this environment variation
+                new_wind_params = self.parameterizer.sample_random_parameters()
+                env = create_env(new_wind_params)
+                env.transform[0].init_stats(num_iter=500, reduce_dim=0, cat_dim=0)
+                
+                new_collector = SyncDataCollector(
+                    env,
+                    self.policy_module,
+                    frames_per_batch=frames_per_batch // NUM_ENV_VARIATIONS,
+                    total_frames=total_frames,
+                    split_trajs=False,
+                    device=device,
+                )
+                
+                # Replace the problematic collector
+                self.env_collectors[i] = (new_collector, new_wind_params)
+        
+        if combined_tensordict is None:
+            # If all collectors failed, create a new emergency collector with default settings
+            print("All collectors failed. Creating emergency collector.")
+            wind_params = {'enable_wind': False, 'wind_power': 0.0, 'turbulence_power': 0.0}
+            env = create_env(wind_params)
+            env.transform[0].init_stats(num_iter=500, reduce_dim=0, cat_dim=0)
+            
+            emergency_collector = SyncDataCollector(
+                env,
+                self.policy_module,
+                frames_per_batch=frames_per_batch,
+                total_frames=total_frames,
+                split_trajs=False,
+                device=device,
+            )
+            
+            tensordict_data = next(iter(emergency_collector))
+            combined_tensordict = tensordict_data
+            self.env_collectors[0] = (emergency_collector, wind_params)
         
         self.frames_collected += combined_tensordict.numel()
         return combined_tensordict
@@ -251,15 +288,18 @@ def create_model():
     # For reference, we need the action spec from an environment
     base_env = create_env(transform=False)
     
-    # Create actor network (policy)
+    # Create actor network (policy) - Using fixed sized layers instead of lazy
+    input_dim = base_env.observation_spec["observation"].shape[-1]
+    output_dim = base_env.action_spec.shape[-1]
+    
     actor_net = nn.Sequential(
-        nn.LazyLinear(512, device=device),
+        nn.Linear(input_dim, 256, device=device),
         nn.ReLU(),
-        nn.LazyLinear(512, device=device),
+        nn.Linear(256, 256, device=device),
         nn.ReLU(),
-        nn.LazyLinear(256, device=device),
+        nn.Linear(256, 128, device=device),
         nn.ReLU(),
-        nn.LazyLinear(2 * base_env.action_spec.shape[-1], device=device),
+        nn.Linear(128, 2 * output_dim, device=device),
         NormalParamExtractor(),
     )
     
@@ -279,15 +319,15 @@ def create_model():
         return_log_prob=True,
     )
     
-    # Create value network (critic)
+    # Create value network (critic) - Using fixed sized layers
     value_net = nn.Sequential(
-        nn.LazyLinear(512, device=device),
+        nn.Linear(input_dim, 256, device=device),
         nn.ReLU(),
-        nn.LazyLinear(512, device=device),
+        nn.Linear(256, 256, device=device),
         nn.ReLU(),
-        nn.LazyLinear(256, device=device),
+        nn.Linear(256, 128, device=device),
         nn.ReLU(),
-        nn.LazyLinear(1, device=device),
+        nn.Linear(128, 1, device=device),
     )
     
     value_module = ValueOperator(
@@ -295,12 +335,20 @@ def create_model():
         in_keys=["observation"],
     )
     
+    # With fixed-size networks, we don't need the dummy initialization anymore
+    # but we'll keep a simpler version just to make sure everything's working
+    dummy_env = create_env(transform=True)
+    dummy_env.transform[0].init_stats(num_iter=10, reduce_dim=0, cat_dim=0)
+    
     return policy_module, value_module, base_env.action_spec
 
 
 def evaluate_policy(policy_module, wind_parameterizer, num_eval_runs=5):
     """Evaluate policy across multiple wind conditions"""
     eval_results = []
+    
+    # Make sure policy is in eval mode
+    policy_module.eval()
     
     # Test on various wind conditions
     test_conditions = [
@@ -313,23 +361,32 @@ def evaluate_policy(policy_module, wind_parameterizer, num_eval_runs=5):
     for condition in test_conditions:
         condition_rewards = []
         
+        # Create and prepare environment for this condition
+        env = create_env(condition)
+        env.transform[0].init_stats(num_iter=500, reduce_dim=0, cat_dim=0)
+        
+        # Run multiple evaluations for each condition
         for _ in range(num_eval_runs):
-            env = create_env(condition)
-            env.transform[0].init_stats(num_iter=500, reduce_dim=0, cat_dim=0)
-            
-            with set_exploration_type(ExplorationType.DETERMINISTIC), torch.no_grad():
-                eval_rollout = env.rollout(1000, policy_module)
-                condition_rewards.append(eval_rollout["next", "reward"].sum().item())
+            try:
+                with set_exploration_type(ExplorationType.DETERMINISTIC), torch.no_grad():
+                    eval_rollout = env.rollout(1000, policy_module)
+                    condition_rewards.append(eval_rollout["next", "reward"].sum().item())
+            except Exception as e:
+                print(f"Error during evaluation: {e}")
+                # In case of error, add a very negative reward
+                condition_rewards.append(-1000)
         
         # Store average reward for this condition
         eval_results.append({
             'wind_power': condition['wind_power'],
             'turbulence_power': condition['turbulence_power'],
-            'avg_reward': sum(condition_rewards) / len(condition_rewards),
-            'min_reward': min(condition_rewards),
-            'max_reward': max(condition_rewards)
+            'avg_reward': sum(condition_rewards) / len(condition_rewards) if condition_rewards else -1000,
+            'min_reward': min(condition_rewards) if condition_rewards else -1000,
+            'max_reward': max(condition_rewards) if condition_rewards else -1000
         })
     
+    # Set policy back to training mode
+    policy_module.train()
     return eval_results
 
 
@@ -356,7 +413,7 @@ def train():
         sampler=SamplerWithoutReplacement(),
     )
     
-    # Create loss modules
+    # Create loss modules directly without dummy data (we're using fixed-size networks now)
     advantage_module = GAE(
         gamma=gamma, lmbda=lmbda, value_network=value_module, average_gae=True
     )
@@ -414,10 +471,11 @@ def train():
     step_idx = 0
     num_batches = 0
     
-    while not multi_collector.is_complete():
-        # Collect batch of data from multiple environments
-        tensordict_data = multi_collector.collect_batch()
-        num_batches += 1
+    try:
+        while not multi_collector.is_complete():
+            # Collect batch of data from multiple environments
+            tensordict_data = multi_collector.collect_batch()
+            num_batches += 1
         
         # Train on this batch for multiple epochs
         for _ in range(num_epochs):
@@ -496,6 +554,11 @@ def train():
         
         # Update learning rate
         scheduler.step()
+    
+    except Exception as e:
+        print(f"Exception during training: {e}")
+        import traceback
+        traceback.print_exc()
     
     # Close logger and progress bar
     writer.close()

@@ -200,7 +200,7 @@ max_grad_norm = 1.0
 frames_per_batch = 4000  # increased from 1000
 # For a complete training, bring the number of frames up to 1M
 #total_frames = 10_000
-total_frames = 4_000_000  # increased from 1_000_000
+total_frames = 2_000_000  # increased from 1_000_000
 
 ######################################################################
 # PPO parameters
