@@ -24,8 +24,8 @@ from tensordict import TensorDict, TensorDictBase
 from tensordict.nn import TensorDictModule
 from typing import Optional
 from torchrl.modules import EGreedyModule, MLP, QValueModule
-from torchrl.data import OneHot
-from torchrl.data import DiscreteTensorSpec
+from torchrl.data import OneHot, Bounded, MultiCategorical
+
 
 from tensordict.nn import TensorDictModule, TensorDictSequential
 
@@ -61,6 +61,11 @@ def generate_synthetic_data(num_samples=1000):
         "conversion_value": np.random.uniform(0, 10000, num_samples)   # Monetärer Wert der Conversions (Ein monetärer Wert, der den finanziellen Nutzen aus den erzielten Conversions widerspiegelt. Dieser Wert gibt an, wie viel Umsatz oder Gewinn durch die Conversions generiert wurde – je höher der Wert, desto wertvoller sind die Conversions aus Marketingsicht.)
     }
     return pd.DataFrame(data)
+
+test = generate_synthetic_data(10)
+test.head()
+print(test.shape)
+print(test.columns)
 
 
 def getKeywords():
@@ -147,46 +152,77 @@ print(entry)
 
 # Define a Custom TorchRL Environment
 class AdOptimizationEnv(EnvBase):
-    def __init__(self, dataset, device="cpu"):
+    def __init__(self, dataset, initial_cash=100000.0, device="cpu"):
         super().__init__(device=device)
+        self.initial_cash = initial_cash
         self.dataset = dataset
         self.num_features = len(feature_columns)
-        self.action_spec = OneHot(n=2, dtype=torch.int64)
+        self.num_keywords = get_entry_from_dataset(self.dataset, 0).shape[0]
+        #self.action_spec = Bounded(low=0, high=1, shape=(self.num_keywords,), dtype=torch.int, domain="discrete")
+        self.action_spec = MultiCategorical(nvec=[2] * self.num_keywords) # 0 = hold, 1 = buy
+        #self.action_spec = OneHot(n=2, dtype=torch.int64)
         self.reset()
 
     def _reset(self, tensordict=None):
-        sample = self.dataset.sample(1)
-        state = torch.tensor(sample[feature_columns].values, dtype=torch.float32).squeeze()
+        self.current_step = 0
+        self.holdings = torch.zeros(self.num_keywords, dtype=torch.int) # 0 = not holding, 1 = holding keyword
+        self.cash = self.initial_cash
+        #sample = self.dataset.sample(1)
+        #state = torch.tensor(sample[feature_columns].values, dtype=torch.float32).squeeze()
+        # Create the initial observation.
+        state = torch.tensor(get_entry_from_dataset(self.dataset, self.current_step)[feature_columns].values, dtype=torch.float32, device=self.device).squeeze()
+        obs = TensorDict({
+            "keyword_pki": state,  # Current pki for each keyword
+            "cash": torch.tensor(self.cash, dtype=torch.float32, device=self.device),  # Current cash balance
+            "holdings": self.holdings.clone().detach()  # 1 for each keyword if we are holding
+        }, batch_size=[])
         #return TensorDict({"observation": state}, batch_size=[])
         # step_count initialisieren
         return TensorDict(
             {
-                "observation": state,
-                "step_count": torch.tensor(0, dtype=torch.int64, device=self.device)
+                "observation": obs,
+                "step_count": self.current_step
             },
             batch_size=[]
         )
 
     def _step(self, tensordict):
-        action = tensordict["action"].argmax(dim=-1).item()
-        #action = tensordict["action"].item()
-        next_sample = self.dataset.sample(1)
-        next_state = torch.tensor(next_sample[feature_columns].values, dtype=torch.float32).squeeze()
-        reward = self._compute_reward(action, next_sample)
-        done = False
-        #return TensorDict({"observation": next_state, "reward": torch.tensor(reward), "done": torch.tensor(done)}, batch_size=[])
-         # hole aktuellen step_count (falls vorhanden) und inkrementiere ihn
-        current_step = tensordict.get("step_count", torch.tensor(0, dtype=torch.int64, device=self.device))
-        new_step = current_step + 1
-        return TensorDict(
-            {
-                "observation": next_state,
-                "reward": torch.tensor(reward, device=self.device),
-                "done": torch.tensor(done, device=self.device),
-                "step_count": new_step,
-            },
-            batch_size=[]
-        )
+         # Expect the action to be a tensor of shape (num_keywords) with values 0 or 1
+        action = tensordict["action"].to(torch.int)
+        current_pki = get_entry_from_dataset(self.dataset, self.current_step)
+        #action = tensordict["action"].argmax(dim=-1).item()
+        
+        # Buy or wait each keyword based on the action.
+        # 1 as action -> buy; 0 as action -> wait
+        for i in range(self.num_keywords):
+            if action[i] == 1:  # Buy action
+                self.holdings[i] = 1
+            elif action[i] == 0:  # Wait
+                self.holdings[i] = 0
+
+        # Calculate the reward based on the action taken.
+        reward = self._compute_reward(action, current_pki)
+
+         # Move to the next time step.
+        self.current_step += 1
+        done = self.current_step >= len(self.dataset) - 1
+        
+        # Get next pki for the keywords
+        next_state = torch.tensor(get_entry_from_dataset(self.dataset, self.current_step)[feature_columns].values, dtype=torch.float32, device=self.device).squeeze()
+        # todo: most probably we need to remove some columns from the state so we only have the features for the agent to see... change it also in reset
+        next_obs = TensorDict({
+            "keyword_pki": next_state,  # next pki for each keyword
+            "cash": torch.tensor(self.cash, dtype=torch.float32, device=self.device),  # Current cash balance
+            "holdings": torch.tensor(self.holdings, dtype=torch.int, device=self.device)  # 1 for each keyword if we are holding
+        }, batch_size=[])
+        
+        # Return a TensorDict containing observation, reward, and done flag.
+        return TensorDict({
+            "observation": next_obs,
+            "reward": torch.tensor(reward, dtype=torch.float32, device=self.device),
+            "done": torch.tensor(done, dtype=torch.bool, device=self.device),
+            "step_count": self.current_step
+        }, batch_size=[])
 
     def _compute_reward(self, action, sample):
         cost = sample["ad_spend"].values[0]
@@ -206,7 +242,7 @@ class AdOptimizationEnv(EnvBase):
 # Initialize Environment
 env = AdOptimizationEnv(dataset, device=device)
 state_dim = env.num_features
-action_dim = env.action_spec.n
+#action_dim = env.action_spec.n
 
 
 
@@ -217,14 +253,58 @@ action_dim = env.action_spec.n
 env.action_spec
 
 
-# In[ ]:
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class MultiStockQValueNet(nn.Module):
+    def __init__(self, input_dim, num_keywords, num_actions):
+        """
+        input_dim: Dimension of the input features (e.g., state dimension)
+        num_keywords: Number of keywords (each with its own discrete action space)
+        num_actions: Number of discrete actions per keyword (e.g., 2 for buy or wait)
+        """
+        super().__init__()
+        # Shared feature extraction backbone.
+        self.shared = nn.Sequential(
+            nn.Linear(input_dim, 128),
+            nn.ReLU(),
+            nn.Linear(128, 128),
+            nn.ReLU()
+        )
+        # Create a separate head for each stock.
+        self.heads = nn.ModuleList([nn.Linear(128, num_actions) for _ in range(num_keywords)])
+        
+    def forward(self, x):
+        # x shape: (batch, input_dim)
+        features = self.shared(x)  # Shape: (batch, 128)
+        # Get Q-values for each stock
+        q_values = [head(features) for head in self.heads]  # Each has shape: (batch, num_actions)
+        # Stack to form a tensor with shape: (batch, num_stocks, num_actions)
+        q_values = torch.stack(q_values, dim=1)
+        return q_values
+
+# Example usage:
+# Let's assume:
+#   - Your environment's state dimension is 20.
+#   - You have 3 stocks.
+#   - For each stock, there are 3 possible actions.
+input_dim = 20
+num_stocks = 3
+num_actions = 3
+
+q_net = MultiStockQValueNet(input_dim, num_stocks, num_actions)
+dummy_input = torch.randn(4, input_dim)  # batch of 4
+print(q_net(dummy_input).shape)  # Expected shape: (4, 3, 3)
+
 
 
 from torchrl.modules import EGreedyModule, MLP, QValueModule
 
 value_mlp = MLP(in_features=env.num_features, out_features=env.action_spec.shape[-1], num_cells=[64, 64])
 value_net = TensorDictModule(value_mlp, in_keys=["observation"], out_keys=["action_value"])
-policy = TensorDictSequential(value_net, QValueModule(spec=env.action_spec))
+#policy = TensorDictSequential(value_net, QValueModule(spec=env.action_spec))
+policy = TensorDictSequential(value_net, MultiStockQValueNet(len(feature_columns), env.num_keywords, 2))
 # Make sure your policy is on the correct device
 policy = policy.to(device)
 
@@ -232,7 +312,7 @@ exploration_module = EGreedyModule(
     env.action_spec, annealing_num_steps=100_000, eps_init=0.5
 )
 exploration_module = exploration_module.to(device)
-policy_explore = TensorDictSequential(policy, exploration_module)
+policy_explore = TensorDictSequential(policy, exploration_module).to(device)
 
 
 # In[ ]:
