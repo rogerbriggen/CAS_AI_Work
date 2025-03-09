@@ -24,7 +24,7 @@ from tensordict import TensorDict, TensorDictBase
 from tensordict.nn import TensorDictModule
 from typing import Optional
 from torchrl.modules import EGreedyModule, MLP, QValueModule
-from torchrl.data import OneHot, Bounded, MultiCategorical
+from torchrl.data import OneHot, Bounded, Unbounded, Binary, MultiCategorical, Composite, UnboundedContinuous
 
 
 from tensordict.nn import TensorDictModule, TensorDictSequential
@@ -162,8 +162,21 @@ class AdOptimizationEnv(EnvBase):
         #self.action_spec = MultiCategorical(nvec=[2] * self.num_keywords) # 0 = hold, 1 = buy
         #self.action_spec = Categorical
         self.action_spec = OneHot(n=self.num_keywords + 1) # select which one to buy or the last one to buy nothing
-        #self.action_spec = Categorical, dtype=torch.int64)
-        #self.action_spec = OneHot(n=2, dtype=torch.int64)
+        self.reward_spec = Unbounded(shape=(1,), dtype=torch.float32)
+        self.observation_spec = Composite(
+            observation = Composite(
+                keyword_features=Unbounded(shape=(self.num_keywords, self.num_features), dtype=torch.float32),
+                cash=Unbounded(shape=(1,), dtype=torch.float32),
+                holdings=Bounded(low=0, high=1, shape=(self.num_keywords,), dtype=torch.int, domain="discrete")
+            ),
+            step_count=Unbounded(shape=(1,), dtype=torch.int64)
+        )
+        self.done_spec = Composite(
+            done=Binary(shape=(1,), dtype=torch.bool),
+            terminated=Binary(shape=(1,), dtype=torch.bool),
+            truncated=Binary(shape=(1,), dtype=torch.bool)
+        )
+        
         self.reset()
 
     def _reset(self, tensordict=None):
@@ -181,15 +194,27 @@ class AdOptimizationEnv(EnvBase):
         }, batch_size=[])
         #return TensorDict({"observation": state}, batch_size=[])
         # step_count initialisieren
-        result = TensorDict(
-            {
+        if tensordict is None:
+            tensordict = TensorDict({
+                "done": torch.tensor(False, dtype=torch.bool, device=self.device),
                 "observation": obs,
-                "step_count": torch.tensor(self.current_step, dtype=torch.int64, device=self.device)
+                "step_count": torch.tensor(self.current_step, dtype=torch.int64, device=self.device),
+                "terminated": torch.tensor(False, dtype=torch.bool, device=self.device),
+                "truncated": torch.tensor(False, dtype=torch.bool, device=self.device)
             },
-            batch_size=[]
-        )
+            batch_size=[])
+        else:
+            tensordict["done"] = torch.tensor(False, dtype=torch.bool, device=self.device)
+            tensordict["observation"] = obs
+            tensordict["step_count"] = torch.tensor(self.current_step, dtype=torch.int64, device=self.device)
+            tensordict["terminated"] = torch.tensor(False, dtype=torch.bool, device=self.device)
+            tensordict["truncated"] = torch.tensor(False, dtype=torch.bool, device=self.device)
+        
+        self.obs = obs
         #print(result)
-        return result
+        print(f'Reset: Step: {self.current_step}')
+        return tensordict
+
 
     def _step(self, tensordict):
         # Get the action from the input tensor dictionary. 
@@ -212,7 +237,8 @@ class AdOptimizationEnv(EnvBase):
 
          # Move to the next time step.
         self.current_step += 1
-        done = self.current_step >= (len(self.dataset) // self.num_keywords) - 1
+        terminated = self.current_step >= (len(self.dataset) // self.num_keywords) - 2 # -2 to avoid going over the last index
+        truncated = False
 
         # Get next pki for the keywords
         next_keyword_features = torch.tensor(get_entry_from_dataset(self.dataset, self.current_step)[feature_columns].values, dtype=torch.float32, device=self.device)
@@ -223,26 +249,30 @@ class AdOptimizationEnv(EnvBase):
             "holdings": self.holdings.clone()
         }, batch_size=[])
         
-        # Return a TensorDict containing observation, reward, and done flag.
-        """ 
-        result = TensorDict({
-            "observation": tensordict["observation"],
-            "reward": torch.tensor(reward, dtype=torch.float32, device=self.device),
-            "done": torch.tensor(done, dtype=torch.bool, device=self.device),
-            "next": TensorDict({
-                "observation": next_obs,
-                "step_count": torch.tensor(self.current_step, dtype=torch.int64, device=self.device)
-            }, batch_size=[])
-        }, batch_size=[]) """
-        # pretty sure we need to move some stuff into the next key
-        result = TensorDict({
+        # Update the state
+        self.obs = next_obs
+        print(f'Step: {self.current_step}, Action: {action_idx}, Reward: {reward}')
+        tensordict["done"] = torch.tensor(terminated or truncated, dtype=torch.bool, device=self.device)
+        
+        tensordict["done"] = torch.tensor(terminated or truncated, dtype=torch.bool, device=self.device)
+        tensordict["observation"] = self.obs
+        tensordict["reward"] = torch.tensor(reward, dtype=torch.float32, device=self.device)
+        tensordict["step_count"] = torch.tensor(self.current_step-1, dtype=torch.int64, device=self.device)
+        tensordict["terminated"] = torch.tensor(terminated, dtype=torch.bool, device=self.device)
+        tensordict["truncated"] = torch.tensor(truncated, dtype=torch.bool, device=self.device)
+        next = TensorDict({
+            "done": torch.tensor(terminated or truncated, dtype=torch.bool, device=self.device),
             "observation": next_obs,
             "reward": torch.tensor(reward, dtype=torch.float32, device=self.device),
-            "done": torch.tensor(done, dtype=torch.bool, device=self.device),
-            "step_count": torch.tensor(self.current_step, dtype=torch.int64, device=self.device)
-        }, batch_size=[])
-        #print(result)
-        return result
+            "step_count": torch.tensor(self.current_step, dtype=torch.int64, device=self.device),
+            "terminated": torch.tensor(terminated, dtype=torch.bool, device=self.device),
+            "truncated": torch.tensor(truncated, dtype=torch.bool, device=self.device)
+
+        }, batch_size=tensordict.batch_size)
+        
+        return next
+    
+        
 
     def _compute_reward(self, action, current_pki, action_idx):
         """Compute reward based on the selected keyword's metrics"""
@@ -430,8 +460,7 @@ from torch.optim import Adam
 from torchrl.objectives import DQNLoss, SoftUpdate
 #actor = QValueActor(value_net, in_keys=["observation"], action_space=spec)
 loss = DQNLoss(value_network=policy, action_space=env.action_spec, delay_value=True).to(device)
-#optim = Adam(loss.parameters(), lr=0.02)
-optim = Adam(policy.parameters(), lr=0.02)
+optim = Adam(loss.parameters(), lr=0.02)
 updater = SoftUpdate(loss, eps=0.99)
 
 
@@ -444,6 +473,7 @@ total_episodes = 0
 t0 = time.time()
 for i, data in enumerate(collector):
     # Write data in replay buffer
+    print(f'data: step_count: {data["step_count"]}')
     rb.extend(data.to(device))
     #max_length = rb[:]["next", "step_count"].max()
     max_length = rb[:]["step_count"].max()
@@ -466,8 +496,8 @@ for i, data in enumerate(collector):
                 print(f"Max num steps: {max_length}, rb length {len(rb)}")
             total_count += data.numel()
             total_episodes += data["next", "done"].sum()
-    if max_length > 200:
-        break
+    #if max_length > 200:  #that is still from the sample where 200 is a good value to balance the CartPole
+    #    break
 
 t1 = time.time()
 
