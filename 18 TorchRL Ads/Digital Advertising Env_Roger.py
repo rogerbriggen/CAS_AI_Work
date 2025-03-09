@@ -224,6 +224,17 @@ class AdOptimizationEnv(EnvBase):
         }, batch_size=[])
         
         # Return a TensorDict containing observation, reward, and done flag.
+        """ 
+        result = TensorDict({
+            "observation": tensordict["observation"],
+            "reward": torch.tensor(reward, dtype=torch.float32, device=self.device),
+            "done": torch.tensor(done, dtype=torch.bool, device=self.device),
+            "next": TensorDict({
+                "observation": next_obs,
+                "step_count": torch.tensor(self.current_step, dtype=torch.int64, device=self.device)
+            }, batch_size=[])
+        }, batch_size=[]) """
+        # pretty sure we need to move some stuff into the next key
         result = TensorDict({
             "observation": next_obs,
             "reward": torch.tensor(reward, dtype=torch.float32, device=self.device),
@@ -317,12 +328,44 @@ print(q_net(dummy_input).shape)  # Expected shape: (4, 3, 3)
  # Create a preprocessing layer to flatten and combine inputs
 class FlattenInputs(nn.Module):
     def forward(self, keyword_features, cash, holdings):
-        # Flatten keyword features: [batch, num_keywords, feature_dim] -> [batch, num_keywords * feature_dim]
-        flattened_features = keyword_features.reshape(keyword_features.shape[0], -1)
+        # Check if we have a batch dimension
+        has_batch = keyword_features.dim() > 2
         
-        # Combine with cash and holdings
-        cash = cash.unsqueeze(-1) if cash.ndim == 0 else cash  # Ensure cash has a dimension
-        combined = torch.cat([flattened_features, cash, holdings], dim=-1)
+        if has_batch:
+            batch_size = keyword_features.shape[0]
+            # Flatten keyword features while preserving batch dimension: 
+            # [batch, num_keywords, feature_dim] -> [batch, num_keywords * feature_dim]
+            flattened_features = keyword_features.reshape(batch_size, -1)
+            
+            # Ensure cash has correct dimensions [batch, 1]
+            if cash.dim() == 1:  # [batch]
+                cash = cash.unsqueeze(-1)  # [batch, 1]
+            elif cash.dim() == 0:  # scalar
+                cash = cash.unsqueeze(0).expand(batch_size, 1)  # [batch, 1]
+            
+            # Ensure holdings has correct dimensions [batch, num_keywords]
+            if holdings.dim() == 1:  # [num_keywords]
+                holdings = holdings.unsqueeze(0).expand(batch_size, -1)  # [batch, num_keywords]
+            
+            # Convert holdings to float
+            holdings = holdings.float()
+            
+            # Combine all inputs along dimension 1
+            combined = torch.cat([flattened_features, cash, holdings], dim=1)
+        else:
+            # No batch dimension - single sample case
+            # Flatten keyword features: [num_keywords, feature_dim] -> [num_keywords * feature_dim]
+            flattened_features = keyword_features.reshape(-1)
+            
+            # Ensure cash has a dimension
+            cash = cash.unsqueeze(-1) if cash.dim() == 0 else cash
+            
+            # Convert holdings to float
+            holdings = holdings.float()
+            
+            # Combine all inputs
+            combined = torch.cat([flattened_features, cash, holdings], dim=0)
+            
         return combined
 
 flatten_module = TensorDictModule(
@@ -385,8 +428,8 @@ from torch.optim import Adam
 
 
 from torchrl.objectives import DQNLoss, SoftUpdate
-
-loss = DQNLoss(value_network=policy, action_space=env.action_spec, delay_value=True)
+#actor = QValueActor(value_net, in_keys=["observation"], action_space=spec)
+loss = DQNLoss(value_network=policy, action_space=env.action_spec, delay_value=True).to(device)
 #optim = Adam(loss.parameters(), lr=0.02)
 optim = Adam(policy.parameters(), lr=0.02)
 updater = SoftUpdate(loss, eps=0.99)
@@ -403,7 +446,7 @@ for i, data in enumerate(collector):
     # Write data in replay buffer
     rb.extend(data.to(device))
     #max_length = rb[:]["next", "step_count"].max()
-    max_length = rb["step_count"].max()
+    max_length = rb[:]["step_count"].max()
     if len(rb) > init_rand_steps:
         # Optim loop (we do several optim steps
         # per batch collected for efficiency)
