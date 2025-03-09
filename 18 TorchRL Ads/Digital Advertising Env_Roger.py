@@ -121,8 +121,8 @@ def read_and_organize_csv(file_path):
 #organized_dataset.to_csv('organized_dataset.csv', index=False)
 
 
-df = pd.read_csv('18 TorchRL Ads/organized_dataset.csv')
-df.head()
+dataset = pd.read_csv('18 TorchRL Ads/organized_dataset.csv')
+dataset.head()
 
 def get_entry_from_dataset(df, index):
     # Count unique keywords
@@ -143,10 +143,10 @@ def get_entry_from_dataset(df, index):
     return df.iloc[index * keywords_amount:index * keywords_amount + keywords_amount].reset_index(drop=True)
 
 # Example usage
-entry = get_entry_from_dataset(df, 0)
+entry = get_entry_from_dataset(dataset, 0)
 print(entry)
 
-entry = get_entry_from_dataset(df, 1)
+entry = get_entry_from_dataset(dataset, 1)
 print(entry)
 
 
@@ -159,80 +159,97 @@ class AdOptimizationEnv(EnvBase):
         self.num_features = len(feature_columns)
         self.num_keywords = get_entry_from_dataset(self.dataset, 0).shape[0]
         #self.action_spec = Bounded(low=0, high=1, shape=(self.num_keywords,), dtype=torch.int, domain="discrete")
-        self.action_spec = MultiCategorical(nvec=[2] * self.num_keywords) # 0 = hold, 1 = buy
+        #self.action_spec = MultiCategorical(nvec=[2] * self.num_keywords) # 0 = hold, 1 = buy
+        #self.action_spec = Categorical
+        self.action_spec = OneHot(n=self.num_keywords + 1) # select which one to buy or the last one to buy nothing
+        #self.action_spec = Categorical, dtype=torch.int64)
         #self.action_spec = OneHot(n=2, dtype=torch.int64)
         self.reset()
 
     def _reset(self, tensordict=None):
         self.current_step = 0
-        self.holdings = torch.zeros(self.num_keywords, dtype=torch.int) # 0 = not holding, 1 = holding keyword
+        self.holdings = torch.zeros(self.num_keywords, dtype=torch.int, device=self.device) # 0 = not holding, 1 = holding keyword
         self.cash = self.initial_cash
         #sample = self.dataset.sample(1)
         #state = torch.tensor(sample[feature_columns].values, dtype=torch.float32).squeeze()
         # Create the initial observation.
-        state = torch.tensor(get_entry_from_dataset(self.dataset, self.current_step)[feature_columns].values, dtype=torch.float32, device=self.device).squeeze()
+        keyword_features = torch.tensor(get_entry_from_dataset(self.dataset, self.current_step)[feature_columns].values, dtype=torch.float32, device=self.device)
         obs = TensorDict({
-            "keyword_pki": state,  # Current pki for each keyword
+            "keyword_features": keyword_features,  # Current pki for each keyword
             "cash": torch.tensor(self.cash, dtype=torch.float32, device=self.device),  # Current cash balance
-            "holdings": self.holdings.clone().detach()  # 1 for each keyword if we are holding
+            "holdings": self.holdings.clone()  # 1 for each keyword if we are holding
         }, batch_size=[])
         #return TensorDict({"observation": state}, batch_size=[])
         # step_count initialisieren
-        return TensorDict(
+        result = TensorDict(
             {
                 "observation": obs,
-                "step_count": self.current_step
+                "step_count": torch.tensor(self.current_step, dtype=torch.int64, device=self.device)
             },
             batch_size=[]
         )
+        #print(result)
+        return result
 
     def _step(self, tensordict):
-         # Expect the action to be a tensor of shape (num_keywords) with values 0 or 1
-        action = tensordict["action"].to(torch.int)
+        # Get the action from the input tensor dictionary. 
+        action = tensordict["action"]
+        #action_idx = action.argmax(dim=-1).item()  # Get the index of the selected keyword
+        true_indices = torch.nonzero(action, as_tuple=True)[0]
+        action_idx = true_indices[0] if len(true_indices) > 0 else self.action_spec.n - 1
+
         current_pki = get_entry_from_dataset(self.dataset, self.current_step)
         #action = tensordict["action"].argmax(dim=-1).item()
         
-        # Buy or wait each keyword based on the action.
-        # 1 as action -> buy; 0 as action -> wait
-        for i in range(self.num_keywords):
-            if action[i] == 1:  # Buy action
-                self.holdings[i] = 1
-            elif action[i] == 0:  # Wait
-                self.holdings[i] = 0
+        # Update holdings based on action (only one keyword is selected)
+        new_holdings = torch.zeros_like(self.holdings)
+        if action_idx < self.num_keywords:
+            new_holdings[action_idx] = 1
+        self.holdings = new_holdings
 
         # Calculate the reward based on the action taken.
-        reward = self._compute_reward(action, current_pki)
+        reward = self._compute_reward(action, current_pki, action_idx)
 
          # Move to the next time step.
         self.current_step += 1
-        done = self.current_step >= len(self.dataset) - 1
-        
+        done = self.current_step >= (len(self.dataset) // self.num_keywords) - 1
+
         # Get next pki for the keywords
-        next_state = torch.tensor(get_entry_from_dataset(self.dataset, self.current_step)[feature_columns].values, dtype=torch.float32, device=self.device).squeeze()
+        next_keyword_features = torch.tensor(get_entry_from_dataset(self.dataset, self.current_step)[feature_columns].values, dtype=torch.float32, device=self.device)
         # todo: most probably we need to remove some columns from the state so we only have the features for the agent to see... change it also in reset
         next_obs = TensorDict({
-            "keyword_pki": next_state,  # next pki for each keyword
+            "keyword_features": next_keyword_features,  # next pki for each keyword
             "cash": torch.tensor(self.cash, dtype=torch.float32, device=self.device),  # Current cash balance
-            "holdings": torch.tensor(self.holdings, dtype=torch.int, device=self.device)  # 1 for each keyword if we are holding
+            "holdings": self.holdings.clone()
         }, batch_size=[])
         
         # Return a TensorDict containing observation, reward, and done flag.
-        return TensorDict({
+        result = TensorDict({
             "observation": next_obs,
             "reward": torch.tensor(reward, dtype=torch.float32, device=self.device),
             "done": torch.tensor(done, dtype=torch.bool, device=self.device),
-            "step_count": self.current_step
+            "step_count": torch.tensor(self.current_step, dtype=torch.int64, device=self.device)
         }, batch_size=[])
+        #print(result)
+        return result
 
-    def _compute_reward(self, action, sample):
-        cost = sample["ad_spend"].values[0]
-        ctr = sample["paid_ctr"].values[0]
-        if action == 1 and cost > 5000:
-            reward = 1.0
-        elif action == 0 and ctr > 0.15:
-            reward = 1.0
-        else:
-            reward = -1.0
+    def _compute_reward(self, action, current_pki, action_idx):
+        """Compute reward based on the selected keyword's metrics"""
+        if action_idx == self.num_keywords:
+            return 0.0
+        
+        reward = 0.0
+        # Iterate thourh all keywords
+        for i in range(self.num_keywords):
+            sample = current_pki.iloc[i]
+            cost = sample["ad_spend"]
+            ctr = sample["paid_ctr"]
+            if action[i] == True and cost > 5000:
+                reward += 1.0
+            elif action[i] == False and ctr > 0.15:
+                reward += 1.0
+            else:
+                reward -= 1.0
         return reward
 
     def _set_seed(self, seed: Optional[int]):
@@ -297,14 +314,36 @@ q_net = MultiStockQValueNet(input_dim, num_stocks, num_actions)
 dummy_input = torch.randn(4, input_dim)  # batch of 4
 print(q_net(dummy_input).shape)  # Expected shape: (4, 3, 3)
 
+ # Create a preprocessing layer to flatten and combine inputs
+class FlattenInputs(nn.Module):
+    def forward(self, keyword_features, cash, holdings):
+        # Flatten keyword features: [batch, num_keywords, feature_dim] -> [batch, num_keywords * feature_dim]
+        flattened_features = keyword_features.reshape(keyword_features.shape[0], -1)
+        
+        # Combine with cash and holdings
+        cash = cash.unsqueeze(-1) if cash.ndim == 0 else cash  # Ensure cash has a dimension
+        combined = torch.cat([flattened_features, cash, holdings], dim=-1)
+        return combined
 
+flatten_module = TensorDictModule(
+    FlattenInputs(),
+    in_keys=[("observation", "keyword_features"), ("observation", "cash"), ("observation", "holdings")],
+    out_keys=["flattened_input"]
+)
 
 from torchrl.modules import EGreedyModule, MLP, QValueModule
 
-value_mlp = MLP(in_features=env.num_features, out_features=env.action_spec.shape[-1], num_cells=[64, 64])
-value_net = TensorDictModule(value_mlp, in_keys=["observation"], out_keys=["action_value"])
-#policy = TensorDictSequential(value_net, QValueModule(spec=env.action_spec))
-policy = TensorDictSequential(value_net, MultiStockQValueNet(len(feature_columns), env.num_keywords, 2))
+# Define dimensions
+feature_dim = len(feature_columns)
+num_keywords = env.num_keywords
+action_dim = env.action_spec.shape[-1]
+total_input_dim = feature_dim * num_keywords + 1 + num_keywords  # features + cash + holdings
+
+value_mlp = MLP(in_features=total_input_dim, out_features=action_dim, num_cells=[128, 64])
+#value_net = TensorDictModule(value_mlp, in_keys=["observation"], out_keys=["action_value"])
+value_net = TensorDictModule(value_mlp, in_keys=["flattened_input"], out_keys=["action_value"])
+policy = TensorDictSequential(flatten_module, value_net, QValueModule(spec=env.action_spec))
+#policy = TensorDictSequential(value_net, MultiStockQValueNet(len(feature_columns), env.num_keywords, 2))
 # Make sure your policy is on the correct device
 policy = policy.to(device)
 
@@ -348,7 +387,8 @@ from torch.optim import Adam
 from torchrl.objectives import DQNLoss, SoftUpdate
 
 loss = DQNLoss(value_network=policy, action_space=env.action_spec, delay_value=True)
-optim = Adam(loss.parameters(), lr=0.02)
+#optim = Adam(loss.parameters(), lr=0.02)
+optim = Adam(policy.parameters(), lr=0.02)
 updater = SoftUpdate(loss, eps=0.99)
 
 
