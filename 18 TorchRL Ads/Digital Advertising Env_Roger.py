@@ -498,15 +498,26 @@ for i, data in enumerate(collector):
             total_episodes += data["next", "done"].sum()
     #if max_length > 200:  #that is still from the sample where 200 is a good value to balance the CartPole
     #    break
+    if total_count > 10_000:
+        break
 
 t1 = time.time()
 
 print(
-    f"solved after {total_count} steps, {total_episodes} episodes and in {t1-t0}s."
+    f"Finished after {total_count} steps, {total_episodes} episodes and in {t1-t0}s."
 )
 
 
-# In[ ]:
+''''
+Todo:
+- Clean up the code
+- Split training and test data
+- Implement tensorbaord
+- Implement the visualization
+- Implement the saving of the model
+- Implement the inference
+- Implement the optuna hyperparameter tuning
+'''''
 
 
 

@@ -6,6 +6,14 @@
   "configurations": [
     { "name": "Python Debugger: Current File", "type": "debugpy", "request": "launch", "program": "${file}", "console": "integratedTerminal" },
     {
+      "name": "Python Debugger: Current File Just My Code = false",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
       "name": "Python Debugger: Current File with Arguments",
       "type": "debugpy",
       "request": "launch",
