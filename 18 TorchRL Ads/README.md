@@ -1,4 +1,7 @@
-# Ads stuff
+# Digital Advertising
+
+This is the state after the first week in the final project.
+The final project can be found here: <https://github.com/rogerbriggen/digital_advertising>
 
 ## Environment
 
@@ -46,13 +49,13 @@ tensorboard --logdir=runs
 
 Open webbrowser at <http://localhost:6006/> (or check the output of the tensorboard start)
 
-# Resources
+## Resources
 
-* https://www.youtube.com/watch?v=wLVrHKursgU&list=PLKoqnv2vTMUOnQn-lNDfT38X9gA_CHxTo&index=2
-* https://account.similarweb.com/packages/de/marketing/
-* https://www.semrush.com/lp/product-keyword-magic-tool-7
-* https://keywordtool.io/?msclkid=2e34a939b8d413ac89c1cefee5615c16
-* https://ppcexpo.com/blog/how-do-i-find-out-how-much-a-keyword-costs
-* https://datarade.ai/data-categories/keyword-data/datasets
-* https://developers.google.com/google-ads/api/docs/keyword-planning/overview?hl=de
-* https://datasetsearch.research.google.com/
+- <https://www.youtube.com/watch?v=wLVrHKursgU&list=PLKoqnv2vTMUOnQn-lNDfT38X9gA_CHxTo&index=2>
+- <https://account.similarweb.com/packages/de/marketing/>
+- <https://www.semrush.com/lp/product-keyword-magic-tool-7>
+- <https://keywordtool.io/?msclkid=2e34a939b8d413ac89c1cefee5615c16>
+- <https://ppcexpo.com/blog/how-do-i-find-out-how-much-a-keyword-costs>
+- <https://datarade.ai/data-categories/keyword-data/datasets>
+- <https://developers.google.com/google-ads/api/docs/keyword-planning/overview?hl=de>
+- <https://datasetsearch.research.google.com/>
